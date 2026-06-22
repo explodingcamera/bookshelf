@@ -1,0 +1,28 @@
+@import "./base.css";
+
+@layer bookshelf {
+	.bs-embed {
+		--bookshelf--text: #201f1b;
+		--bookshelf--muted: #6f6a61;
+		--bookshelf--rating: #645a47;
+		color-scheme: light;
+	}
+
+	/* System dark mode (unless light is forced) */
+	@media (prefers-color-scheme: dark) {
+		.bs-embed:not([data-bookshelf-light]) {
+			--bookshelf--text: #eeeae0;
+			--bookshelf--muted: #aaa397;
+			--bookshelf--rating: #c5bda9;
+			color-scheme: dark;
+		}
+	}
+
+	/* Explicit dark override (light needs no rules, the :not() above skips it) */
+	.bs-embed[data-bookshelf-dark] {
+		--bookshelf--text: #eeeae0;
+		--bookshelf--muted: #aaa397;
+		--bookshelf--rating: #c5bda9;
+		color-scheme: dark;
+	}
+}

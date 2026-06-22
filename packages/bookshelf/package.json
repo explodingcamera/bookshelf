@@ -1,0 +1,41 @@
+{
+	"name": "@explodingcamera/bookshelf",
+	"version": "0.1.0",
+	"description": "Import a bookshelf (Goodreads, ...) to JSON and render it to HTML. Works in browsers, Node, CLIs and edge runtimes.",
+	"type": "module",
+	"license": "MIT",
+	"files": [
+		"dist",
+		"styles"
+	],
+	"main": "./dist/index.mjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"bin": {
+		"bookshelf": "./dist/cli.mjs"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs",
+			"default": "./dist/index.mjs"
+		},
+		"./styles/*": "./dist/styles/*",
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsdown && bun run build:css",
+		"build:css": "lightningcss --bundle --minify --targets \"chrome 100, firefox 100, safari 15\" styles/default.css -d dist/styles",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"microjsx": "^0.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^25.9.3",
+		"lightningcss": "^1.32.0",
+		"lightningcss-cli": "^1.32.0",
+		"tsdown": "^0.22.2",
+		"typescript": "^6.0.3"
+	}
+}

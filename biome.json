@@ -1,0 +1,40 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"preset": "recommended",
+			"source": { "preset": "recommended", "organizeImports": "off" }
+		}
+	},
+	"formatter": {
+		"lineWidth": 100,
+		"indentStyle": "tab"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"suspicious": {
+				"noArrayIndexKey": "off",
+				"noDuplicateProperties": "off"
+			},
+			"complexity": {
+				"noUselessFragments": "off",
+				"noImportantStyles": "off"
+			},
+			"style": {
+				"noDescendingSpecificity": "off",
+				"noNonNullAssertion": "off"
+			},
+			"correctness": {
+				"useUniqueElementIds": "off",
+				"noUnusedImports": { "fix": "none", "level": "warn" },
+				"noUnusedVariables": { "fix": "none", "level": "warn" }
+			}
+		}
+	},
+	"files": {
+		"includes": ["**", "!**/dist", "!**/node_modules", "!**/spec.ts*", "!public/styles"]
+	}
+}

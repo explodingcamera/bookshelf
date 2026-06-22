@@ -1,0 +1,16 @@
+.content {
+	min-height: 280px;
+	padding: 18px;
+	background: var(--ui-surface-2);
+}
+
+.state {
+	color: var(--ui-muted);
+	padding: 48px 0;
+	text-align: center;
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.82rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
