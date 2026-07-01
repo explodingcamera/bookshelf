@@ -1,0 +1,103 @@
+@layer bookshelf {
+	.bs-embed .bs-grid {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(calc(120px * var(--bookshelf--scale)), 1fr));
+		gap: calc(18px * var(--bookshelf--scale));
+	}
+	.bs-embed .bs-book {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		min-width: 0;
+	}
+	.bs-embed .bs-cover {
+		width: 100%;
+		aspect-ratio: 2 / 3;
+		border-radius: var(--bookshelf--radius);
+		object-fit: cover;
+		display: block;
+	}
+	.bs-embed .bs-cover-frame {
+		position: relative;
+		display: block;
+		aspect-ratio: 2 / 3;
+	}
+	.bs-embed .bs-cover-frame .bs-cover {
+		position: absolute;
+		inset: 0;
+		height: 100%;
+	}
+	.bs-embed .bs-cover-img {
+		z-index: 1;
+	}
+	.bs-embed .bs-cover-link {
+		display: block;
+		color: inherit;
+		text-decoration: none;
+	}
+	.bs-embed .bs-cover-ph {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 14px;
+		text-align: center;
+		background: color-mix(in srgb, var(--bookshelf--muted) 18%, transparent) !important;
+	}
+	.bs-embed .bs-cover-title {
+		color: color-mix(in srgb, var(--bookshelf--text) 54%, transparent);
+		font-weight: 600;
+		font-size: 0.95rem;
+		line-height: 1.25;
+	}
+	.bs-embed .bs-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+	.bs-embed .bs-title {
+		font-weight: 600;
+		font-size: 0.92rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.bs-embed .bs-author {
+		font-size: 0.82rem;
+		color: var(--bookshelf--muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.bs-embed .bs-date {
+		color: var(--bookshelf--muted);
+		font-size: 0.78rem;
+		font-variant-numeric: tabular-nums;
+	}
+	.bs-embed .bs-book-actions {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.bs-embed .bs-review-link {
+		display: inline-flex;
+		align-items: center;
+		color: var(--bookshelf--muted);
+		text-decoration: none;
+	}
+	.bs-embed .bs-review-link:hover {
+		color: var(--bookshelf--text);
+	}
+	.bs-embed .bs-review-icon {
+		width: 0.95em;
+		height: 0.95em;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+}

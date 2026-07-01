@@ -6,31 +6,34 @@
 	"packageManager": "bun@1.3.14",
 	"description": "Turn a Goodreads profile into a shareable, embeddable bookshelf.",
 	"scripts": {
-		"dev": "vite",
-		"build": "bun run --filter @explodingcamera/bookshelf build && bun run copy:bookshelf-css && vite build",
+		"dev": "bun run --parallel dev:web dev:api",
+		"dev:web": "vite",
+		"dev:api": "PORT=5174 bun run --filter @dawdle.space/bookshelf-api dev",
+		"build": "bun run --filter @dawdle.space/bookshelf build && bun run copy:bookshelf-css && vite build",
 		"copy:bookshelf-css": "mkdir -p public/styles && cp packages/bookshelf/dist/styles/default.css public/styles/default.css",
 		"preview": "vite preview",
-		"typecheck": "bun run --filter @explodingcamera/bookshelf typecheck && bun run --filter @explodingcamera/bookshelf build && tsc --noEmit",
+		"typecheck": "bun run --filter @dawdle.space/bookshelf typecheck && bun run --filter @dawdle.space/bookshelf build && bun run --filter @dawdle.space/bookshelf-api typecheck && tsc --noEmit",
 		"lint": "biome check .",
 		"format": "biome format --write ."
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.6.0",
-		"@explodingcamera/bookshelf": "workspace:*",
+		"@dawdle.space/bookshelf": "workspace:*",
 		"lucide-react": "^1.22.0",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.1",
+		"@biomejs/biome": "^2.5.2",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^6.0.3",
 		"lightningcss-cli": "^1.32.0",
 		"typescript": "^6.0.3",
-		"vite": "^8.1.0"
+		"vite": "^8.1.2"
 	},
 	"workspaces": [
-		"packages/*"
+		"packages/*",
+		"examples/*"
 	]
 }

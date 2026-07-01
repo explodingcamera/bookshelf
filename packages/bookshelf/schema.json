@@ -1,0 +1,61 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://bookshelf.dawdle.space/schema.json",
+	"title": "Bookshelf Config",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["dataSource"],
+	"properties": {
+		"$schema": { "type": "string" },
+		"dataSource": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["type"],
+			"properties": {
+				"type": { "type": "string", "enum": ["static", "goodreadsrss", "hardcover"] },
+				"url": { "type": "string" }
+			}
+		},
+		"coverSource": { "type": "string", "enum": ["openlibrary", "metadata", "none"] },
+		"bookLinkSource": { "type": "string", "enum": ["none", "provider", "openlibrary"] },
+		"theme": { "type": "string", "enum": ["auto", "light", "dark"] },
+		"dateFormat": { "type": "string", "enum": ["yyyy-mm-dd", "dd.mm.yyyy", "mm/dd/yyyy"] },
+		"stylesheet": { "type": "string", "enum": ["cdn", "inline", "none"], "default": "cdn" },
+		"showAttribution": { "type": "boolean", "default": true },
+		"sections": {
+			"type": "array",
+			"items": { "$ref": "#/$defs/section" }
+		}
+	},
+	"$defs": {
+		"section": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["label"],
+			"properties": {
+				"label": { "type": "string" },
+				"filter": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"shelf": { "type": "string" },
+						"hasReview": { "type": "boolean" },
+						"hasRating": { "type": "boolean" }
+					}
+				},
+				"mode": { "type": "string", "enum": ["covers", "spines", "3d", "list"] },
+				"sortBy": {
+					"type": "string",
+					"enum": ["readAt", "readAtAsc", "addedAt", "addedAtAsc", "rating", "ratingAsc"]
+				},
+				"spineBehavior": { "type": "string", "enum": ["hover", "open"] },
+				"roundedCorners": { "type": "boolean" },
+				"showRatings": { "type": "boolean" },
+				"showAuthor": { "type": "boolean" },
+				"showReadDate": { "type": "boolean" },
+				"reviewDisplay": { "type": "string", "enum": ["none", "inline", "accordion"] },
+				"scale": { "type": "number", "minimum": 0.65, "maximum": 1.6 }
+			}
+		}
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"name": "@dawdle.space/bookshelf-api",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "bun --watch src/server.ts",
+		"start": "bun src/server.ts",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@dawdle.space/bookshelf": "workspace:*",
+		"hono": "^4.12.27"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.3"
+	}
+}

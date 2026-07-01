@@ -1,0 +1,14 @@
+{
+	"name": "bookshelf-astro-example",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build"
+	},
+	"dependencies": {
+		"@astrojs/node": "^11.0.0",
+		"@dawdle.space/bookshelf": "workspace:*",
+		"astro": "^7.0.4"
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"name": "bookshelf-nextjs-example",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build"
+	},
+	"dependencies": {
+		"@dawdle.space/bookshelf": "workspace:*",
+		"next": "^16.2.9",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7"
+	}
+}

@@ -5,7 +5,7 @@
 }
 
 .header {
-	padding: 36px 0 18px;
+	padding: 72px 0 18px;
 }
 .headerTop {
 	display: flex;
@@ -82,21 +82,6 @@
 	padding: 0;
 }
 
-.card:first-child {
-	background: var(--ui-surface-2);
-	padding: 18px 24px;
-}
-
-.sectionTitle {
-	margin: 0 0 14px;
-	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-	font-size: 0.72rem;
-	font-weight: 800;
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--ui-text);
-}
-
 .tabs {
 	display: flex;
 	flex-direction: column;
@@ -116,8 +101,7 @@
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 0.76rem;
 	font-weight: 800;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.01em;
 	color: var(--ui-muted);
 }
 .tab[data-active] {
@@ -149,8 +133,7 @@
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 0.72rem;
 	font-weight: 800;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
+	letter-spacing: 0.02em;
 }
 .select {
 	border: 0;
@@ -172,15 +155,27 @@
 }
 
 .footer {
-	padding: 24px 0 40px;
+	position: fixed;
+	left: 20px;
+	right: 20px;
+	bottom: 16px;
+	z-index: 10;
+	pointer-events: none;
 }
 .muted {
 	margin: 0;
+	display: flex;
+	justify-content: space-between;
+	gap: 18px;
 	color: var(--ui-muted);
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 0.74rem;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.01em;
+}
+.muted a {
+	color: inherit;
+	text-underline-offset: 0.18em;
+	pointer-events: auto;
 }
 
 .toast {
@@ -222,6 +217,15 @@
 
 	.headerTop {
 		align-items: flex-start;
+	}
+
+	.header {
+		padding-top: 36px;
+	}
+
+	.footer {
+		position: static;
+		padding: 0 16px 18px;
 	}
 
 	.toast {

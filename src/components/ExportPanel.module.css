@@ -16,8 +16,7 @@
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 0.76rem;
 	font-weight: 800;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.01em;
 	color: var(--ui-muted);
 	border-radius: 0;
 }
@@ -40,6 +39,40 @@
 	margin: 0;
 	color: var(--ui-muted);
 	font-size: 0.82rem;
+}
+.hint a,
+.hint code {
+	color: var(--ui-text);
+}
+.option {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	width: fit-content;
+	color: var(--ui-text);
+	font-size: 0.82rem;
+}
+.innerRoot {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.innerList {
+	display: inline-flex;
+	gap: 4px;
+}
+.innerTab {
+	border: 0;
+	background: var(--ui-surface-2);
+	padding: 5px 10px;
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.76rem;
+	color: var(--ui-muted);
+}
+.innerTab[data-active] {
+	background: var(--ui-accent);
+	color: var(--ui-accent-contrast);
 }
 .empty {
 	color: var(--ui-muted);

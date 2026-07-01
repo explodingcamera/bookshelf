@@ -1,0 +1,110 @@
+@layer bookshelf {
+	.bs-embed .bs-shelf-row[data-mode="3d"][data-spine-behavior="hover"] {
+		gap: calc(10px * var(--bookshelf--scale)) calc(22px * var(--bookshelf--scale));
+	}
+	.bs-embed .bs-shelf-row[data-mode="3d"][data-spine-behavior="open"] {
+		gap: calc(10px * var(--bookshelf--scale)) calc(15px * var(--bookshelf--scale));
+	}
+	.bs-embed .bs-book3d {
+		--bs-spine-rest-rotate: -4deg;
+		--bs-spine-open-rotate: -57deg;
+		--bs-cover-rest-rotate: 78deg;
+		--bs-cover-open-rotate: 30deg;
+		position: relative;
+		z-index: var(--bs-spine-z, 0);
+		flex: 0 0 auto;
+		overflow: visible;
+		transform-style: preserve-3d;
+	}
+	.bs-embed .bs-book3d:hover {
+		z-index: calc(var(--bs-spine-z, 0) + 1000);
+		filter: saturate(1.06);
+	}
+	.bs-embed .bs-book3d-link {
+		position: relative;
+		display: block;
+		width: var(--bs-spine-width);
+		height: 100%;
+		color: inherit;
+		text-decoration: none;
+		transition: transform 180ms linear;
+		transform-style: preserve-3d;
+	}
+	.bs-embed .bs-book3d:hover .bs-book3d-link,
+	.bs-embed .bs-book3d .bs-book3d-link:hover,
+	.bs-embed .bs-book3d[data-spine-behavior="open"] .bs-book3d-link {
+		transform: translateX(-12px);
+	}
+	.bs-embed .bs-book3d-spine {
+		position: absolute;
+		inset: 0;
+		display: block;
+		width: var(--bs-spine-width);
+		height: 100%;
+		transform: perspective(520px) rotateY(var(--bs-spine-rest-rotate));
+		transform-origin: right center;
+		transition:
+			transform 180ms linear,
+			box-shadow 180ms ease;
+		transform-style: preserve-3d;
+	}
+	.bs-embed .bs-book3d:hover .bs-book3d-spine,
+	.bs-embed .bs-book3d .bs-book3d-link:hover .bs-book3d-spine,
+	.bs-embed .bs-book3d[data-spine-behavior="open"] .bs-book3d-spine {
+		transform: perspective(520px) rotateY(var(--bs-spine-open-rotate));
+	}
+	.bs-embed .bs-book3d .bs-spine-face {
+		border-radius: 0;
+		box-shadow:
+			inset -7px 0 12px rgba(0, 0, 0, 0.24),
+			inset 4px 0 5px rgba(255, 255, 255, 0.08);
+	}
+	.bs-embed .bs-book3d:hover .bs-spine-face,
+	.bs-embed .bs-book3d .bs-book3d-link:hover .bs-spine-face,
+	.bs-embed .bs-book3d[data-spine-behavior="open"] .bs-spine-face {
+		box-shadow:
+			inset -7px 0 12px rgba(0, 0, 0, 0.24),
+			inset 4px 0 5px rgba(255, 255, 255, 0.1);
+	}
+	.bs-embed .bs-book3d-cover {
+		position: absolute;
+		display: block;
+		left: var(--bs-spine-width);
+		bottom: 0;
+		height: 100%;
+		width: var(--bs-spine-cover-width, 120px);
+		max-width: var(--bs-spine-cover-width, 120px);
+		object-fit: cover;
+		border-radius: 0;
+		background: var(--bs-spine-bg);
+		backface-visibility: hidden;
+		filter: brightness(0.78);
+		transform: perspective(520px) rotateY(var(--bs-cover-rest-rotate));
+		transform-origin: left center;
+		transition:
+			transform 180ms linear,
+			filter 180ms linear;
+	}
+	.bs-embed .bs-book3d-cover-img {
+		z-index: 1;
+	}
+	.bs-embed .bs-book3d-cover-ph {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px;
+		color: rgba(255, 255, 255, 0.8);
+		font-size: 0.68rem;
+		font-weight: 700;
+		line-height: 1.15;
+		text-align: center;
+		overflow: hidden;
+	}
+	.bs-embed .bs-book3d:hover .bs-book3d-cover,
+	.bs-embed .bs-book3d .bs-book3d-link:hover .bs-book3d-cover,
+	.bs-embed .bs-book3d[data-spine-behavior="open"] .bs-book3d-cover {
+		filter: brightness(1);
+		transform: perspective(520px) rotateY(var(--bs-cover-open-rotate));
+		transition-delay: 0ms;
+	}
+}

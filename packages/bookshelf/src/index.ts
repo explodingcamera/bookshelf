@@ -1,6 +1,4 @@
-export { resolveSource, SOURCES } from "./importers";
-export type { DocumentOptions, RendererOptions } from "./render";
-export { renderDocument, renderShelf } from "./render";
-export * from "./types";
-export type { RenderBook, RenderedGroups } from "./viewModel";
-export { computeGroups, formatDate, toRenderBook } from "./viewModel";
+export { Bookshelf, type BookshelfCache, memoryCache } from "./api";
+export { DEFAULT_RENDER_OPTIONS, DEFAULT_SHELVES, RENDER_MODES } from "./config";
+export { type DocumentOptions, type RendererOptions, renderDocument, renderShelf } from "./render";
+export type * from "./types";

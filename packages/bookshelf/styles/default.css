@@ -1,4 +1,8 @@
 @import "./base.css";
+@import "../src/render/display/covers.css";
+@import "../src/render/display/spines.css";
+@import "../src/render/display/books-3d.css";
+@import "../src/render/display/list.css";
 
 @layer bookshelf {
 	.bs-embed {

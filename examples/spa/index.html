@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bookshelf SPA Example</title>
+    <link
+      rel="stylesheet"
+      href="https://bookshelf.dawdle.space/styles/default.css"
+    />
+  </head>
+  <body>
+    <main>
+      <h1>Client-rendered Bookshelf</h1>
+      <div id="bookshelf">Loading…</div>
+    </main>
+
+    <script type="module">
+      import { Bookshelf } from "https://esm.sh/@dawdle.space/bookshelf";
+
+      const config = {
+        dataSource: {
+          type: "goodreadsrss",
+          url: "https://www.goodreads.com/review/list_rss/129153443?shelf=read",
+          shelves: ["reading", "read", "to-read"],
+        },
+        coverSource: "openlibrary",
+        bookLinkSource: "provider",
+        theme: "auto",
+        dateFormat: "yyyy-mm-dd",
+        stylesheet: "cdn",
+        showAttribution: true,
+        sections: [
+          {
+            id: "reading",
+            label: "Reading",
+            enabled: true,
+            filter: { shelf: "reading" },
+          },
+          {
+            id: "read",
+            label: "Read",
+            enabled: true,
+            filter: { shelf: "read" },
+          },
+          {
+            id: "to-read",
+            label: "To read",
+            enabled: false,
+            filter: { shelf: "to-read" },
+          },
+        ],
+      };
+
+      const bookshelf = new Bookshelf(config, {
+        baseUrl: "https://bookshelf.dawdle.space",
+      });
+      const data = await bookshelf.load("remote");
+      document.querySelector("#bookshelf").innerHTML = bookshelf.render(data);
+    </script>
+  </body>
+</html>

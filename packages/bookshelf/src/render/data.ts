@@ -1,16 +1,28 @@
-import { bookColors, bookGradient, spineSpec, stars } from "./style";
-import { createBookshelfConfig } from "./types";
+import { DEFAULT_RENDER_OPTIONS, DEFAULT_SHELVES } from "../config";
 import type {
 	Book,
 	BookLinkSource,
 	BookSort,
-	Bookshelf,
 	BookshelfConfig,
+	BookshelfData,
 	CoverSource,
 	DateFormat,
 	RenderOptions,
 	SectionFilter,
-} from "./types";
+	SectionRenderConfig,
+} from "../types";
+import { openLibraryCoverUrl } from "./covers";
+import { bookColors, bookGradient, spineSpec, stars } from "./style";
+
+export type ResolvedBookshelfConfig = BookshelfConfig & {
+	coverSource: CoverSource;
+	bookLinkSource: BookLinkSource;
+	dateFormat: DateFormat;
+	theme: NonNullable<BookshelfConfig["theme"]>;
+	stylesheet: NonNullable<BookshelfConfig["stylesheet"]>;
+	showAttribution: boolean;
+	sections: SectionRenderConfig[];
+};
 
 function pad(n: number): string {
 	return n.toString().padStart(2, "0");
@@ -43,6 +55,7 @@ export interface RenderBook {
 	coverUrl?: string;
 	fallbackCoverUrl?: string;
 	linkUrl?: string;
+	reviewUrl?: string;
 	review: string;
 	rating: string;
 	gradient: string;
@@ -52,14 +65,6 @@ export interface RenderBook {
 	bandTop: number;
 	bandHeight: number;
 	fullTitle: string;
-}
-
-export function openLibraryCoverUrl(book: Book): string | undefined {
-	if (book.openLibraryCoverId)
-		return `https://covers.openlibrary.org/b/id/${book.openLibraryCoverId}-M.jpg?default=false`;
-	const isbn = book.isbn?.replace(/[^0-9Xx]/g, "");
-	if (!isbn) return undefined;
-	return `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false`;
 }
 
 function normalizedIsbn(book: Book): string {
@@ -74,7 +79,8 @@ function openLibraryBookUrl(book: Book): string {
 }
 
 function providerBookUrl(book: Book, sourceId: string): string | undefined {
-	if (sourceId === "goodreads" && book.id) return `https://www.goodreads.com/book/show/${book.id}`;
+	if (sourceId === "goodreadsrss" && book.id)
+		return `https://www.goodreads.com/book/show/${book.id}`;
 	return undefined;
 }
 
@@ -88,11 +94,8 @@ function coverUrls(
 	book: Book,
 	source: CoverSource,
 ): { coverUrl?: string; fallbackCoverUrl?: string } {
-	const openLibrary = openLibraryCoverUrl(book);
-	const primary =
-		source === "openlibrary" ? (openLibrary ?? book.coverUrl) : (book.coverUrl ?? openLibrary);
-	const fallback = primary === openLibrary ? book.coverUrl : openLibrary;
-	return { coverUrl: primary, fallbackCoverUrl: fallback };
+	if (source === "none") return {};
+	return { coverUrl: source === "openlibrary" ? openLibraryCoverUrl(book) : book.coverUrl };
 }
 
 export function toRenderBook(
@@ -113,6 +116,7 @@ export function toRenderBook(
 		coverUrl: covers.coverUrl,
 		fallbackCoverUrl: covers.fallbackCoverUrl,
 		linkUrl: bookLinkUrl(book, linkSource, sourceId),
+		reviewUrl: book.reviewUrl,
 		review: book.review?.trim() ?? "",
 		rating: stars(book.rating),
 		gradient: bookGradient(book),
@@ -127,14 +131,14 @@ export function toRenderBook(
 
 export interface RenderedGroups {
 	showHeadings: boolean;
-	groups: { label: string; books: RenderBook[]; options: RenderOptions }[];
+	groups: { label: string; books: RenderBook[]; options: SectionRenderConfig & RenderOptions }[];
 }
 
 function matchesFilter(book: Book, filter?: SectionFilter): boolean {
 	if (!filter) return true;
 	if (filter.shelf && book.shelf !== filter.shelf) return false;
 	if (filter.hasReview && !book.review?.trim()) return false;
-	if (filter.hasRating && book.rating == null) return false;
+	if (filter.hasRating && (!book.rating || book.rating <= 0)) return false;
 	return true;
 }
 
@@ -168,26 +172,50 @@ function sortBooks(books: Book[], sortBy: BookSort): Book[] {
 	});
 }
 
-/** Group books into the ordered, enabled shelves to render. */
-export function computeGroups(
-	shelf: Bookshelf,
-	config: BookshelfConfig = createBookshelfConfig(shelf),
-): RenderedGroups {
-	const enabled = config.sections.filter((s) => s.enabled);
-	const groups = enabled.map((section) => ({
-		label: section.label,
-		books: sortBooks(shelf.books, section.sortBy)
-			.filter((book) => matchesFilter(book, section.filter))
-			.map((book) =>
-				toRenderBook(
-					book,
-					config.coverSource,
-					config.dateFormat,
-					config.bookLinkSource,
-					shelf.sourceId,
-				),
-			),
-		options: section,
-	}));
+export function resolveRenderConfig(
+	shelf: BookshelfData,
+	config: BookshelfConfig,
+): ResolvedBookshelfConfig {
+	const sourceShelves = shelf.shelves?.length ? shelf.shelves : DEFAULT_SHELVES;
+	return {
+		...config,
+		coverSource: config.coverSource ?? "openlibrary",
+		bookLinkSource: config.bookLinkSource ?? "none",
+		theme: config.theme ?? "auto",
+		dateFormat: config.dateFormat ?? "yyyy-mm-dd",
+		stylesheet: config.stylesheet ?? "cdn",
+		showAttribution: config.showAttribution ?? true,
+		sections:
+			config.sections ??
+			sourceShelves.map((s) => ({
+				...DEFAULT_RENDER_OPTIONS,
+				label: s.label,
+				filter: { shelf: s.id },
+			})),
+	};
+}
+
+export function computeGroups(shelf: BookshelfData, config: BookshelfConfig): RenderedGroups {
+	const resolvedConfig = resolveRenderConfig(shelf, config);
+	const groups = resolvedConfig.sections
+		.map((section) => {
+			const options = { ...DEFAULT_RENDER_OPTIONS, ...section };
+			return {
+				label: section.label,
+				books: sortBooks(shelf.books, options.sortBy)
+					.filter((book) => matchesFilter(book, section.filter))
+					.map((book) =>
+						toRenderBook(
+							book,
+							resolvedConfig.coverSource,
+							resolvedConfig.dateFormat,
+							resolvedConfig.bookLinkSource,
+							shelf.sourceId,
+						),
+					),
+				options,
+			};
+		})
+		.filter((group) => group.books.length > 0);
 	return { showHeadings: groups.length > 1, groups };
 }

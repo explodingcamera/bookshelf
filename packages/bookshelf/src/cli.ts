@@ -1,17 +1,16 @@
 #!/usr/bin/env node
-// CLI: bookshelf <shelf.json> [--mode covers|spines|list] [--doc] [--css theme.css]
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { createBookshelfConfig, renderDocument, renderShelf } from "./index";
-import type { Bookshelf, CoverSource, RenderMode } from "./types";
 
-const MODES: RenderMode[] = ["covers", "spines", "list"];
-const COVER_SOURCES: CoverSource[] = ["openlibrary", "metadata"];
+import { Bookshelf } from "./api";
+import { exportCover } from "./covers";
+import { goodreadsRssSource } from "./importer/goodreads-rss";
+import type { BookshelfConfig } from "./types";
 
 const { values, positionals } = parseArgs({
 	options: {
-		mode: { type: "string", default: "covers" },
-		"cover-source": { type: "string", default: "openlibrary" },
+		"export-cover": { type: "string" },
+		template: { type: "string" },
 		doc: { type: "boolean", default: false },
 		css: { type: "string" },
 		out: { type: "string" },
@@ -21,10 +20,10 @@ const { values, positionals } = parseArgs({
 });
 
 if (values.help || positionals.length === 0) {
-	console.log(`bookshelf <shelf.json> [options]
+	console.log(`bookshelf <config.json> [options]
 
-  --mode <m>          covers | spines | list (default: covers)
-  --cover-source <s>  openlibrary | metadata (default: openlibrary)
+  --export-cover <d>  download covers into this directory
+  --template <path>   replace <!-- BOOKSHELF-START --><!-- BOOKSHELF-END --> block
   --doc               emit a full standalone HTML document instead of a fragment
   --css <path>        inline this theme CSS into the document (use with --doc)
   --out <path>        write to file instead of stdout
@@ -32,31 +31,46 @@ if (values.help || positionals.length === 0) {
 	process.exit(values.help ? 0 : 1);
 }
 
-const mode = values.mode as RenderMode;
-if (!MODES.includes(mode)) {
-	console.error(`invalid --mode: ${mode}`);
-	process.exit(1);
-}
-const coverSource = values["cover-source"] as CoverSource;
-if (!COVER_SOURCES.includes(coverSource)) {
-	console.error(`invalid --cover-source: ${coverSource}`);
-	process.exit(1);
+if (positionals.length > 1) throw new Error("expected exactly one config file");
+if (values.template && values.doc) throw new Error("--template and --doc cannot be used together");
+if (values.css && !values.doc) throw new Error("--css can only be used with --doc");
+
+const START = "<!-- BOOKSHELF-START -->";
+const END = "<!-- BOOKSHELF-END -->";
+
+function renderIntoTemplate(template: string, markup: string): string {
+	const block = `${START}\n${markup}\n${END}`;
+	const existing = new RegExp(
+		`${START.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${END.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+	);
+	if (existing.test(template)) return template.replace(existing, block);
+	throw new Error(`template must contain ${START}${END}`);
 }
 
 const file = positionals[0];
-if (!file) {
-	console.error("missing input file");
-	process.exit(1);
+if (!file) throw new Error("missing input file");
+
+const config = JSON.parse(readFileSync(file, "utf8")) as BookshelfConfig;
+if (!config.dataSource) throw new Error("config JSON must include dataSource");
+const bookshelf = new Bookshelf({ ...config, sources: [goodreadsRssSource] });
+const shelf = await bookshelf.load();
+if (values["export-cover"]) {
+	const exported = await exportCover(shelf, {
+		outDir: values["export-cover"],
+		coverSource: config.coverSource,
+	});
+	process.stderr.write(`Exported ${exported.length} cover${exported.length === 1 ? "" : "s"}.\n`);
 }
+const css = values.css
+	? readFileSync(values.css, "utf8")
+	: values.doc && config.stylesheet === "inline"
+		? readFileSync(new URL("./styles/default.css", import.meta.url), "utf8")
+		: undefined;
 
-const shelf = JSON.parse(readFileSync(file, "utf8")) as Bookshelf;
-const css = values.css ? readFileSync(values.css, "utf8") : undefined;
-const config = {
-	...createBookshelfConfig(shelf, { mode }),
-	coverSource,
-};
+const markup = values.doc ? bookshelf.renderDocument(shelf, { css }) : bookshelf.render(shelf);
+const output = values.template
+	? renderIntoTemplate(readFileSync(values.template, "utf8"), markup)
+	: markup;
 
-const html = values.doc ? renderDocument(shelf, config, { css }) : renderShelf(shelf, config);
-
-if (values.out) writeFileSync(values.out, html);
-else process.stdout.write(html);
+if (values.out) writeFileSync(values.out, output);
+else process.stdout.write(output);

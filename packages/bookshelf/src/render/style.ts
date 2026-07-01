@@ -1,4 +1,4 @@
-import type { Book } from "./types";
+import type { Book } from "../types";
 
 function hashSeed(value: string): number {
 	let hash = 0;
@@ -45,7 +45,7 @@ export interface SpineSpec {
 export function spineSpec(book: Book): SpineSpec {
 	const seed = book.id || `${book.title}:${book.author}`;
 	return {
-		width: hashInt(`${seed}:w`, 24, 38),
+		width: hashInt(`${seed}:w`, 34, 50),
 		height: hashInt(`${seed}:h`, 150, 196),
 		bandTop: hashInt(`${seed}:bt`, 18, 46),
 		bandHeight: hashInt(`${seed}:bh`, 26, 44),

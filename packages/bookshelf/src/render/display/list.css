@@ -1,0 +1,71 @@
+@layer bookshelf {
+	.bs-embed .bs-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		font-size: calc(1rem * var(--bookshelf--scale));
+	}
+	.bs-embed .bs-list-item {
+		padding: 4px 4px;
+	}
+	.bs-embed .bs-list-line {
+		display: flex;
+		align-items: baseline;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+	.bs-embed .bs-list-line.bs-has-date {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		align-items: baseline;
+		column-gap: 10px;
+	}
+	.bs-embed .bs-list-date {
+		color: var(--bookshelf--muted);
+		font-size: 0.82rem;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+	.bs-embed .bs-list-main {
+		display: block;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+	.bs-embed .bs-list-title {
+		font-weight: 600;
+	}
+	.bs-embed .bs-list-title::after {
+		content: " ";
+	}
+	.bs-embed .bs-list-author {
+		color: var(--bookshelf--muted);
+		font-size: 0.9rem;
+	}
+	.bs-embed .bs-list-line .bs-rating {
+		margin-left: auto;
+	}
+
+	.bs-embed .bs-review,
+	.bs-embed .bs-review-details {
+		margin: 8px 0 10px;
+		color: var(--bookshelf--muted);
+		font-size: 0.88rem;
+		line-height: 1.45;
+	}
+	.bs-embed .bs-review-details summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: var(--bookshelf--text);
+	}
+	.bs-embed .bs-review-details .bs-review {
+		margin-top: 6px;
+	}
+	.bs-embed .bs-review p {
+		margin: 0 0 0.65em;
+	}
+	.bs-embed .bs-review p:last-child {
+		margin-bottom: 0;
+	}
+}

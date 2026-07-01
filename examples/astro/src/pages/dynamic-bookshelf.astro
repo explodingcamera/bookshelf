@@ -1,0 +1,27 @@
+---
+export const prerender = false;
+
+import { Bookshelf, memoryCache } from "@dawdle.space/bookshelf";
+import { goodreadsRssSource } from "@dawdle.space/bookshelf/importer/goodreads-rss";
+import "@dawdle.space/bookshelf/styles/default.css";
+import { config } from "../bookshelf";
+
+const bookshelf = new Bookshelf({
+	...config,
+	cache: memoryCache(),
+	sources: [goodreadsRssSource],
+});
+const data = await bookshelf.load();
+const html = bookshelf.render(data);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Dynamic Bookshelf</title>
+	</head>
+	<body>
+		<h1>Dynamic Bookshelf</h1>
+		<div set:html={html} />
+	</body>
+</html>

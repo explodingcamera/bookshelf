@@ -1,13 +1,14 @@
+import styles from "./Shelves.module.css";
+
 import type {
+	BookSort,
 	RenderMode,
 	ReviewDisplay,
 	SectionRenderConfig,
 	ShelfConfig,
-	BookSort,
-} from "@explodingcamera/bookshelf";
-import { DEFAULT_RENDER_OPTIONS, RENDER_MODES } from "@explodingcamera/bookshelf";
+} from "@dawdle.space/bookshelf";
+import { DEFAULT_RENDER_OPTIONS, RENDER_MODES } from "@dawdle.space/bookshelf";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import styles from "./Shelves.module.css";
 
 interface Props {
 	sections: SectionRenderConfig[];
@@ -30,10 +31,13 @@ const SORT_OPTIONS: { id: BookSort; label: string }[] = [
 	{ id: "ratingAsc", label: "My rating (reversed)" },
 ];
 
-function nextId(sections: SectionRenderConfig[]): string {
-	let i = sections.length + 1;
-	while (sections.some((s) => s.id === `section-${i}`)) i++;
-	return `section-${i}`;
+const CUSTOM_SHELF = "__custom__";
+
+function labelForShelf(id: string): string {
+	return id
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
 }
 
 export function Shelves({ sections, sourceShelves, onChange }: Props) {
@@ -45,19 +49,18 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 		onChange(next);
 	};
 
-	const update = (id: string, patch: Partial<SectionRenderConfig>) =>
-		onChange(sections.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+	const update = (index: number, patch: Partial<SectionRenderConfig>) =>
+		onChange(sections.map((s, i) => (i === index ? { ...s, ...patch } : s)));
 
-	const remove = (id: string) => onChange(sections.filter((s) => s.id !== id));
+	const remove = (index: number) => onChange(sections.filter((_, i) => i !== index));
 
 	const addSection = () =>
 		onChange([
 			...sections,
 			{
 				...DEFAULT_RENDER_OPTIONS,
-				id: nextId(sections),
-				label: "",
-				enabled: true,
+				label: sourceShelves[0]?.label ?? "",
+				filter: sourceShelves[0] ? { shelf: sourceShelves[0].id } : undefined,
 			},
 		]);
 
@@ -65,19 +68,22 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 		<div className={styles.root}>
 			<ul className={styles.list}>
 				{sections.map((s, i) => {
-					const canShowReadDate = s.mode !== "spines";
+					const canShowReadDate = s.mode === "covers" || s.mode === "list";
 					const canShowReviews = s.mode === "list";
 					const canRoundCorners = s.mode === "covers";
-					const canChangeSpineStyle = s.mode === "spines";
-					const canChangeSpineBehavior = canChangeSpineStyle && s.spineStyle === "3d";
+					const canShowAuthor = s.mode === "spines" || s.mode === "3d";
+					const canChangeSpineBehavior = s.mode === "3d";
+					const shelfValue = sourceShelves.some((shelf) => shelf.id === s.filter?.shelf)
+						? s.filter?.shelf
+						: s.filter?.shelf || "";
 					return (
-						<li key={s.id} className={styles.row}>
+						<li key={`${s.filter?.shelf ?? "section"}-${i}`} className={styles.row}>
 							<div className={styles.header}>
 								<input
 									className={styles.labelInput}
 									value={s.label}
 									placeholder="Section title"
-									onChange={(e) => update(s.id, { label: e.currentTarget.value })}
+									onChange={(e) => update(i, { label: e.currentTarget.value })}
 									aria-label="Section label"
 								/>
 								<div className={styles.actions}>
@@ -104,7 +110,7 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 									<button
 										type="button"
 										className={styles.remove}
-										onClick={() => remove(s.id)}
+										onClick={() => remove(i)}
 										aria-label={`Remove ${s.label || "section"}`}
 									>
 										<Trash2 aria-hidden="true" size={15} strokeWidth={2} />
@@ -113,32 +119,48 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 							</div>
 
 							<div className={styles.sentence}>
-								<span>Show</span>
+								<span>Shelf:</span>
 								<label>
 									<span className={styles.srOnly}>Source shelf</span>
 									<select
 										className={styles.select}
-										value={s.filter?.shelf ?? ""}
+										value={shelfValue}
 										onChange={(e) => {
-											const shelf = e.currentTarget.value || undefined;
-											update(s.id, { filter: { ...s.filter, shelf } });
+											const value = e.currentTarget.value;
+											if (value === CUSTOM_SHELF) {
+												const shelf = window
+													.prompt("Goodreads shelf slug, for example favorites or sci-fi")
+													?.trim()
+													.replace(/^shelf=/, "");
+												if (!shelf) return;
+												update(i, {
+													label: labelForShelf(shelf),
+													filter: { ...s.filter, shelf },
+												});
+												return;
+											}
+											const shelf = value || undefined;
+											update(i, { filter: { ...s.filter, shelf } });
 										}}
 									>
-										<option value="">All shelves</option>
 										{sourceShelves.map((shelf) => (
 											<option key={shelf.id} value={shelf.id}>
 												{shelf.label}
 											</option>
 										))}
+										{s.filter?.shelf &&
+										!sourceShelves.some((shelf) => shelf.id === s.filter?.shelf) ? (
+											<option value={s.filter.shelf}>{labelForShelf(s.filter.shelf)}</option>
+										) : null}
+										<option value={CUSTOM_SHELF}>Custom shelf...</option>
 									</select>
 								</label>
-								<span>books</span>
 								<label className={styles.check}>
 									<input
 										type="checkbox"
 										checked={Boolean(s.filter?.hasReview)}
 										onChange={(e) =>
-											update(s.id, { filter: { ...s.filter, hasReview: e.currentTarget.checked } })
+											update(i, { filter: { ...s.filter, hasReview: e.currentTarget.checked } })
 										}
 									/>
 									with reviews only
@@ -148,7 +170,7 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 										type="checkbox"
 										checked={Boolean(s.filter?.hasRating)}
 										onChange={(e) =>
-											update(s.id, { filter: { ...s.filter, hasRating: e.currentTarget.checked } })
+											update(i, { filter: { ...s.filter, hasRating: e.currentTarget.checked } })
 										}
 									/>
 									with ratings only
@@ -156,13 +178,13 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 							</div>
 
 							<div className={styles.sentence}>
-								<span>Display as</span>
+								<span>Display:</span>
 								<label>
 									<span className={styles.srOnly}>Display format</span>
 									<select
 										className={styles.select}
 										value={s.mode}
-										onChange={(e) => update(s.id, { mode: e.currentTarget.value as RenderMode })}
+										onChange={(e) => update(i, { mode: e.currentTarget.value as RenderMode })}
 									>
 										{RENDER_MODES.map((m) => (
 											<option key={m.id} value={m.id}>
@@ -176,7 +198,7 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 									<select
 										className={styles.select}
 										value={s.sortBy}
-										onChange={(e) => update(s.id, { sortBy: e.currentTarget.value as BookSort })}
+										onChange={(e) => update(i, { sortBy: e.currentTarget.value as BookSort })}
 									>
 										{SORT_OPTIONS.map((option) => (
 											<option key={option.id} value={option.id}>
@@ -192,7 +214,7 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 											className={styles.select}
 											value={s.reviewDisplay}
 											onChange={(e) =>
-												update(s.id, { reviewDisplay: e.currentTarget.value as ReviewDisplay })
+												update(i, { reviewDisplay: e.currentTarget.value as ReviewDisplay })
 											}
 										>
 											{REVIEW_OPTIONS.map((r) => (
@@ -203,25 +225,26 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 										</select>
 									</label>
 								) : null}
-								{canChangeSpineStyle ? (
-									<label className={styles.check}>
-										<input
-											type="checkbox"
-											checked={s.spineStyle === "3d"}
-											onChange={(e) =>
-												update(s.id, { spineStyle: e.currentTarget.checked ? "3d" : "flat" })
-											}
-										/>
-										3D spines
-									</label>
-								) : null}
+								<label>
+									<span className={styles.srOnly}>Scale</span>
+									<select
+										className={styles.select}
+										value={String(s.scale ?? DEFAULT_RENDER_OPTIONS.scale)}
+										onChange={(e) => update(i, { scale: Number(e.currentTarget.value) })}
+									>
+										<option value="0.8">Scale: small</option>
+										<option value="1">Scale: normal</option>
+										<option value="1.2">Scale: large</option>
+										<option value="1.4">Scale: huge</option>
+									</select>
+								</label>
 								{canChangeSpineBehavior ? (
 									<label className={styles.check}>
 										<input
 											type="checkbox"
 											checked={s.spineBehavior === "hover"}
 											onChange={(e) =>
-												update(s.id, { spineBehavior: e.currentTarget.checked ? "hover" : "open" })
+												update(i, { spineBehavior: e.currentTarget.checked ? "hover" : "open" })
 											}
 										/>
 										open on hover
@@ -231,16 +254,26 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 									<input
 										type="checkbox"
 										checked={s.showRatings}
-										onChange={(e) => update(s.id, { showRatings: e.currentTarget.checked })}
+										onChange={(e) => update(i, { showRatings: e.currentTarget.checked })}
 									/>
 									show ratings
 								</label>
+								{canShowAuthor ? (
+									<label className={styles.check}>
+										<input
+											type="checkbox"
+											checked={s.showAuthor}
+											onChange={(e) => update(i, { showAuthor: e.currentTarget.checked })}
+										/>
+										show author
+									</label>
+								) : null}
 								{canShowReadDate ? (
 									<label className={styles.check}>
 										<input
 											type="checkbox"
 											checked={s.showReadDate}
-											onChange={(e) => update(s.id, { showReadDate: e.currentTarget.checked })}
+											onChange={(e) => update(i, { showReadDate: e.currentTarget.checked })}
 										/>
 										show read date
 									</label>
@@ -250,7 +283,7 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 										<input
 											type="checkbox"
 											checked={s.roundedCorners}
-											onChange={(e) => update(s.id, { roundedCorners: e.currentTarget.checked })}
+											onChange={(e) => update(i, { roundedCorners: e.currentTarget.checked })}
 										/>
 										rounded corners
 									</label>

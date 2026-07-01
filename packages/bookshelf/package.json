@@ -1,12 +1,13 @@
 {
-	"name": "@explodingcamera/bookshelf",
+	"name": "@dawdle.space/bookshelf",
 	"version": "0.1.0",
 	"description": "Import a bookshelf (Goodreads, ...) to JSON and render it to HTML. Works in browsers, Node, CLIs and edge runtimes.",
 	"type": "module",
 	"license": "MIT",
 	"files": [
 		"dist",
-		"styles"
+		"styles",
+		"schema.json"
 	],
 	"main": "./dist/index.mjs",
 	"module": "./dist/index.mjs",
@@ -20,22 +21,39 @@
 			"import": "./dist/index.mjs",
 			"default": "./dist/index.mjs"
 		},
+		"./importer/goodreads-rss": {
+			"types": "./dist/importer/goodreads-rss.d.mts",
+			"import": "./dist/importer/goodreads-rss.mjs",
+			"default": "./dist/importer/goodreads-rss.mjs"
+		},
+		"./covers": {
+			"types": "./dist/covers.d.mts",
+			"import": "./dist/covers.mjs",
+			"default": "./dist/covers.mjs"
+		},
+		"./config": {
+			"types": "./dist/config.d.mts",
+			"import": "./dist/config.mjs",
+			"default": "./dist/config.mjs"
+		},
+		"./schema.json": "./schema.json",
 		"./styles/*": "./dist/styles/*",
 		"./package.json": "./package.json"
 	},
 	"scripts": {
 		"build": "tsdown && bun run build:css",
-		"build:css": "lightningcss --bundle --minify --targets \"chrome 100, firefox 100, safari 15\" styles/default.css -d dist/styles",
+		"build:css": "lightningcss --bundle --minify --targets \"chrome 100, firefox 100, safari 15\" styles/default.css -d dist/styles && lightningcss --bundle --minify --targets \"chrome 100, firefox 100, safari 15\" styles/base.css -d dist/styles && mkdir -p dist/styles/render/display && cp src/render/display/*.css dist/styles/render/display/",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
+		"htmlparser2": "^12.0.0",
 		"microjsx": "^0.1.0"
 	},
 	"devDependencies": {
-		"@types/node": "^25.9.3",
+		"@types/node": "^26.1.0",
 		"lightningcss": "^1.32.0",
 		"lightningcss-cli": "^1.32.0",
-		"tsdown": "^0.22.2",
+		"tsdown": "^0.22.3",
 		"typescript": "^6.0.3"
 	}
 }
