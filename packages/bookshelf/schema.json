@@ -49,11 +49,10 @@
 					"enum": ["readAt", "readAtAsc", "addedAt", "addedAtAsc", "rating", "ratingAsc"]
 				},
 				"spineBehavior": { "type": "string", "enum": ["hover", "open"] },
-				"roundedCorners": { "type": "boolean" },
 				"showRatings": { "type": "boolean" },
+				"showReviews": { "type": "boolean" },
 				"showAuthor": { "type": "boolean" },
 				"showReadDate": { "type": "boolean" },
-				"reviewDisplay": { "type": "string", "enum": ["none", "inline", "accordion"] },
 				"scale": { "type": "number", "minimum": 0.65, "maximum": 1.6 }
 			}
 		}

@@ -1,6 +1,5 @@
 import { unsafeHTML } from "microjsx";
 
-import type { ReviewDisplay } from "../../types";
 import type { RenderBook } from "../data";
 import { sanitizeReviewHtml } from "../sanitize";
 import type { JsxElement, RendererOptions } from ".";
@@ -14,23 +13,15 @@ const reviewHtml = (book: RenderBook, opts: RendererOptions): ReturnType<typeof 
 
 const Review = ({
 	book,
-	reviewDisplay,
+	showReviews,
 	rendererOptions,
 }: {
 	book: RenderBook;
-	reviewDisplay: ReviewDisplay;
+	showReviews: boolean;
 	rendererOptions: RendererOptions;
 }) => {
-	if (!book.review || reviewDisplay === "none") return null;
+	if (!showReviews || !book.review) return null;
 	const review = reviewHtml(book, rendererOptions);
-	if (reviewDisplay === "accordion") {
-		return (
-			<details class="bs-review-details">
-				<summary>Review</summary>
-				<div class="bs-review">{review}</div>
-			</details>
-		);
-	}
 	return <div class="bs-review">{review}</div>;
 };
 
@@ -38,13 +29,13 @@ export const List = ({
 	books,
 	showRatings,
 	showReadDate,
-	reviewDisplay,
+	showReviews,
 	rendererOptions,
 }: {
 	books: RenderBook[];
 	showRatings: boolean;
 	showReadDate: boolean;
-	reviewDisplay: ReviewDisplay;
+	showReviews: boolean;
 	rendererOptions: RendererOptions;
 }): JsxElement => (
 	<ul class="bs-list">
@@ -68,7 +59,7 @@ export const List = ({
 						</span>
 						{showRatings && book.rating ? <span class="bs-rating">{book.rating}</span> : null}
 					</div>
-					<Review book={book} reviewDisplay={reviewDisplay} rendererOptions={rendererOptions} />
+					<Review book={book} showReviews={showReviews} rendererOptions={rendererOptions} />
 				</li>
 			);
 		})}

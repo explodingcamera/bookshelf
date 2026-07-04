@@ -18,11 +18,10 @@ export const DEFAULT_RENDER_OPTIONS: RenderOptions = {
 	mode: "covers",
 	sortBy: "readAt",
 	spineBehavior: "hover",
-	roundedCorners: false,
 	showRatings: true,
+	showReviews: false,
 	showAuthor: true,
 	showReadDate: true,
-	reviewDisplay: "none",
 	scale: 1,
 };
 

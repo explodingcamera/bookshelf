@@ -68,7 +68,7 @@ const document = renderDocument(data, { ...config, stylesheet: "inline" }, { css
 
 `stylesheet` controls the generated document CSS:
 
-- `cdn` links to `https://bookshelf.dawdle.space/styles/default.css`.
+- `cdn` links to `https://bookshelf.dawdle.space/styles/v1/default.css`.
 - `inline` inlines `documentOptions.css`.
 - `none` emits no package stylesheet.
 

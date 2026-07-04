@@ -3,7 +3,6 @@ import styles from "./Shelves.module.css";
 import type {
 	BookSort,
 	RenderMode,
-	ReviewDisplay,
 	SectionRenderConfig,
 	ShelfConfig,
 } from "@dawdle.space/bookshelf";
@@ -15,12 +14,6 @@ interface Props {
 	sourceShelves: ShelfConfig[];
 	onChange: (sections: SectionRenderConfig[]) => void;
 }
-
-const REVIEW_OPTIONS: { id: ReviewDisplay; label: string }[] = [
-	{ id: "none", label: "Hide reviews" },
-	{ id: "inline", label: "Show reviews" },
-	{ id: "accordion", label: "Accordion reviews" },
-];
 
 const SORT_OPTIONS: { id: BookSort; label: string }[] = [
 	{ id: "readAt", label: "Date read" },
@@ -70,7 +63,6 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 				{sections.map((s, i) => {
 					const canShowReadDate = s.mode === "covers" || s.mode === "list";
 					const canShowReviews = s.mode === "list";
-					const canRoundCorners = s.mode === "covers";
 					const canShowAuthor = s.mode === "spines" || s.mode === "3d";
 					const canChangeSpineBehavior = s.mode === "3d";
 					const shelfValue = sourceShelves.some((shelf) => shelf.id === s.filter?.shelf)
@@ -207,24 +199,6 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 										))}
 									</select>
 								</label>
-								{canShowReviews ? (
-									<label>
-										<span className={styles.srOnly}>Review display</span>
-										<select
-											className={styles.select}
-											value={s.reviewDisplay}
-											onChange={(e) =>
-												update(i, { reviewDisplay: e.currentTarget.value as ReviewDisplay })
-											}
-										>
-											{REVIEW_OPTIONS.map((r) => (
-												<option key={r.id} value={r.id}>
-													{r.label}
-												</option>
-											))}
-										</select>
-									</label>
-								) : null}
 								<label>
 									<span className={styles.srOnly}>Scale</span>
 									<select
@@ -258,6 +232,16 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 									/>
 									show ratings
 								</label>
+								{canShowReviews ? (
+									<label className={styles.check}>
+										<input
+											type="checkbox"
+											checked={s.showReviews}
+											onChange={(e) => update(i, { showReviews: e.currentTarget.checked })}
+										/>
+										show reviews
+									</label>
+								) : null}
 								{canShowAuthor ? (
 									<label className={styles.check}>
 										<input
@@ -276,16 +260,6 @@ export function Shelves({ sections, sourceShelves, onChange }: Props) {
 											onChange={(e) => update(i, { showReadDate: e.currentTarget.checked })}
 										/>
 										show read date
-									</label>
-								) : null}
-								{canRoundCorners ? (
-									<label className={styles.check}>
-										<input
-											type="checkbox"
-											checked={s.roundedCorners}
-											onChange={(e) => update(i, { roundedCorners: e.currentTarget.checked })}
-										/>
-										rounded corners
 									</label>
 								) : null}
 							</div>

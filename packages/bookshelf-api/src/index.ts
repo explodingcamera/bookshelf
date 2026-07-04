@@ -118,7 +118,12 @@ app.get("/embed", async (c) => {
 			renderDocument(
 				shelf,
 				{ ...config, theme: theme ?? config.theme },
-				{ stylesheetHref: "/styles/default.css", cssHrefs: stylesheet ? [stylesheet] : [] },
+				{
+					stylesheetHref: "/styles/v1/default.css",
+					cssHrefs: stylesheet ? [stylesheet] : [],
+					headCss:
+						'.bs-embed{--bookshelf--font:"Iowan Old Style","Palatino Linotype","URW Palladio L",P052,serif;font-family:var(--bookshelf--font)}',
+				},
 			),
 		);
 	} catch (error) {

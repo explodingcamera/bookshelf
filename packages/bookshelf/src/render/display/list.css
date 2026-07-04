@@ -47,20 +47,11 @@
 		margin-left: auto;
 	}
 
-	.bs-embed .bs-review,
-	.bs-embed .bs-review-details {
+	.bs-embed .bs-review {
 		margin: 8px 0 10px;
 		color: var(--bookshelf--muted);
 		font-size: 0.88rem;
 		line-height: 1.45;
-	}
-	.bs-embed .bs-review-details summary {
-		cursor: pointer;
-		font-weight: 600;
-		color: var(--bookshelf--text);
-	}
-	.bs-embed .bs-review-details .bs-review {
-		margin-top: 6px;
 	}
 	.bs-embed .bs-review p {
 		margin: 0 0 0.65em;

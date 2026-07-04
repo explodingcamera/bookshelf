@@ -9,7 +9,6 @@ import type {
 	CoverSource,
 	DateFormat,
 	RenderMode,
-	ReviewDisplay,
 	SectionRenderConfig,
 	SpineBehavior,
 } from "@dawdle.space/bookshelf";
@@ -106,7 +105,6 @@ const SORT_OPTIONS: { id: BookSort; label: string }[] = [
 	{ id: "rating", label: "My rating" },
 	{ id: "ratingAsc", label: "My rating (reversed)" },
 ];
-const REVIEW_DISPLAYS: ReviewDisplay[] = ["none", "inline", "accordion"];
 const STYLESHEETS: BookshelfStylesheet[] = ["cdn", "inline", "none"];
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -162,10 +160,6 @@ function validBookSort(value: unknown, fallback: BookSort): BookSort {
 	return SORT_OPTIONS.some((option) => option.id === value) ? (value as BookSort) : fallback;
 }
 
-function validReviewDisplay(value: unknown, fallback: ReviewDisplay): ReviewDisplay {
-	return REVIEW_DISPLAYS.includes(value as ReviewDisplay) ? (value as ReviewDisplay) : fallback;
-}
-
 function validSpineBehavior(value: unknown, fallback: SpineBehavior): SpineBehavior {
 	return value === "hover" || value === "open" ? value : fallback;
 }
@@ -204,11 +198,10 @@ function normalizeSection(value: unknown, fallback: CompleteSection): SectionRen
 		mode: validRenderMode(value.mode, fallback.mode),
 		sortBy: validBookSort(value.sortBy, fallback.sortBy),
 		spineBehavior: validSpineBehavior(value.spineBehavior, fallback.spineBehavior),
-		roundedCorners: bool(value.roundedCorners, fallback.roundedCorners),
 		showRatings: bool(value.showRatings, fallback.showRatings),
+		showReviews: bool(value.showReviews, fallback.showReviews),
 		showAuthor: bool(value.showAuthor, fallback.showAuthor),
 		showReadDate: bool(value.showReadDate, fallback.showReadDate),
-		reviewDisplay: validReviewDisplay(value.reviewDisplay, fallback.reviewDisplay),
 		scale: numberInRange(value.scale, fallback.scale, 0.65, 1.6),
 		filter,
 	};

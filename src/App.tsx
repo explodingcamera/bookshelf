@@ -199,7 +199,7 @@ export function App() {
 	}, [config]);
 
 	useEffect(() => {
-		document.documentElement.dataset.theme = theme;
+		document.documentElement.style.colorScheme = theme;
 		try {
 			localStorage.setItem(THEME_KEY, theme);
 		} catch {
@@ -208,7 +208,7 @@ export function App() {
 	}, [theme]);
 
 	return (
-		<>
+		<div className={styles.app}>
 			<SiteHeader
 				theme={theme}
 				onToggleTheme={() => setTheme((cur) => (cur === "dark" ? "light" : "dark"))}
@@ -233,6 +233,6 @@ export function App() {
 			</main>
 			<SiteFooter />
 			<Toast status={status} />
-		</>
+		</div>
 	);
 }

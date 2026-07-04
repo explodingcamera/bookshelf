@@ -41,7 +41,6 @@ export type BookLinkSource = "none" | "provider" | "openlibrary";
 export type BookshelfTheme = "auto" | "light" | "dark";
 export type SpineBehavior = "hover" | "open";
 export type BookSort = "readAt" | "readAtAsc" | "addedAt" | "addedAtAsc" | "rating" | "ratingAsc";
-export type ReviewDisplay = "none" | "inline" | "accordion";
 export type DateFormat = "yyyy-mm-dd" | "dd.mm.yyyy" | "mm/dd/yyyy";
 export type BookshelfStylesheet = "cdn" | "inline" | "none";
 
@@ -67,11 +66,10 @@ export interface RenderOptions {
 	mode: RenderMode;
 	sortBy: BookSort;
 	spineBehavior: SpineBehavior;
-	roundedCorners: boolean;
 	showRatings: boolean;
+	showReviews: boolean;
 	showAuthor: boolean;
 	showReadDate: boolean;
-	reviewDisplay: ReviewDisplay;
 	scale: number;
 }
 

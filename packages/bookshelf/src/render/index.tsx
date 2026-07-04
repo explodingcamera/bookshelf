@@ -1,18 +1,12 @@
 import { render, unsafeHTML } from "microjsx";
 
-import type {
-	BookshelfConfig,
-	BookshelfData,
-	RenderMode,
-	ReviewDisplay,
-	SpineBehavior,
-} from "../types";
+import type { BookshelfConfig, BookshelfData, RenderMode, SpineBehavior } from "../types";
 import type { RenderBook } from "./data";
 import { computeGroups, resolveRenderConfig } from "./data";
 import type { RendererOptions } from "./display";
 import { Books3D, Covers, List, Spines } from "./display";
 
-const DEFAULT_STYLESHEET_HREF = "https://bookshelf.dawdle.space/styles/default.css";
+const DEFAULT_STYLESHEET_HREF = "https://bookshelf.dawdle.space/styles/v1/default.css";
 
 export type { RendererOptions } from "./display";
 
@@ -22,7 +16,7 @@ const Mode = ({
 	showRatings,
 	showAuthor,
 	showReadDate,
-	reviewDisplay,
+	showReviews,
 	spineBehavior,
 	scale,
 	rendererOptions,
@@ -32,7 +26,7 @@ const Mode = ({
 	showRatings: boolean;
 	showAuthor: boolean;
 	showReadDate: boolean;
-	reviewDisplay: ReviewDisplay;
+	showReviews: boolean;
 	spineBehavior: SpineBehavior;
 	scale: number;
 	rendererOptions: RendererOptions;
@@ -57,7 +51,7 @@ const Mode = ({
 				books={books}
 				showRatings={showRatings}
 				showReadDate={showReadDate}
-				reviewDisplay={reviewDisplay}
+				showReviews={showReviews}
 				rendererOptions={rendererOptions}
 			/>
 		);
@@ -87,9 +81,6 @@ const Shelf = ({
 				<div
 					class="bs-shelf-section"
 					data-mode={group.options.mode}
-					data-rounded-corners={
-						group.options.mode === "covers" && group.options.roundedCorners ? true : undefined
-					}
 					style={{ "--bookshelf--scale": group.options.scale }}
 				>
 					{showHeadings && group.label.trim() ? (
@@ -101,7 +92,7 @@ const Shelf = ({
 						showRatings={group.options.showRatings}
 						showAuthor={group.options.showAuthor}
 						showReadDate={group.options.showReadDate}
-						reviewDisplay={group.options.reviewDisplay}
+						showReviews={group.options.showReviews}
 						spineBehavior={group.options.spineBehavior}
 						scale={group.options.scale}
 						rendererOptions={rendererOptions}
@@ -128,6 +119,7 @@ export const renderShelf = (
 export interface DocumentOptions {
 	css?: string;
 	cssHrefs?: readonly string[];
+	headCss?: string;
 	stylesheetHref?: string;
 	baseHref?: string;
 }
@@ -155,6 +147,7 @@ export const renderDocument = (
 					<link rel="stylesheet" href={href} />
 				))}
 				{stylesheet === "inline" && docOpts.css ? <style>{unsafeHTML(docOpts.css)}</style> : null}
+				{docOpts.headCss ? <style>{unsafeHTML(docOpts.headCss)}</style> : null}
 				<style>{unsafeHTML("html,body{margin:0;padding:6px;background:transparent}")}</style>
 			</head>
 			<body>

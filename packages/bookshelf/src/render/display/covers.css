@@ -16,7 +16,7 @@
 	.bs-embed .bs-cover {
 		width: 100%;
 		aspect-ratio: 2 / 3;
-		border-radius: var(--bookshelf--radius);
+		border-radius: var(--bookshelf--radius, 0);
 		object-fit: cover;
 		display: block;
 	}

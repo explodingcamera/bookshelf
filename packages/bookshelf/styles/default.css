@@ -5,11 +5,11 @@
 @import "../src/render/display/list.css";
 
 @layer bookshelf {
-	.bs-embed {
+	:root {
+		--bookshelf--radius: 0;
 		--bookshelf--text: light-dark(#201f1b, #eeeae0);
 		--bookshelf--muted: light-dark(#6f6a61, #aaa397);
 		--bookshelf--rating: light-dark(#645a47, #c5bda9);
-		color-scheme: light dark;
 	}
 
 	.bs-embed[data-bookshelf-light] {

@@ -108,7 +108,7 @@ export function ExportPanel({
 	const snippets = {
 		iframe: `<iframe src="${embedUrl || "GENERATING_EMBED_URL"}" style="width:100%;min-height:480px;border:0" loading="lazy" title="${shelf.owner}'s bookshelf"></iframe>`,
 		static: `${inlineCss ? `<style>${bookshelfCss}</style>\n` : ""}${renderShelf(shelf, config)}`,
-		stylesheet: `<link rel="stylesheet" href="https://bookshelf.dawdle.space/styles/default.css" />`,
+		stylesheet: `<link rel="stylesheet" href="https://bookshelf.dawdle.space/styles/v1/default.css" />`,
 		server: `import { Bookshelf } from "@dawdle.space/bookshelf";
 import { goodreadsRssSource } from "@dawdle.space/bookshelf/importer/goodreads-rss";
 import "@dawdle.space/bookshelf/styles/default.css";
@@ -118,7 +118,7 @@ const config = ${configJson};
 const bookshelf = new Bookshelf({ ...config, sources: [goodreadsRssSource] });
 const data = await bookshelf.load();
 const html = bookshelf.render(data);`,
-		client: `<link rel="stylesheet" href="https://bookshelf.dawdle.space/styles/default.css" />
+		client: `<link rel="stylesheet" href="https://bookshelf.dawdle.space/styles/v1/default.css" />
 <div id="bookshelf">Loading...</div>
 
 <script type="module">

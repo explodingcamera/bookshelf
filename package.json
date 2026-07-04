@@ -10,7 +10,7 @@
 		"dev:web": "vite",
 		"dev:api": "PORT=5174 bun run --filter @dawdle.space/bookshelf-api dev",
 		"build": "bun run --filter @dawdle.space/bookshelf build && bun run copy:bookshelf-css && vite build",
-		"copy:bookshelf-css": "mkdir -p public/styles && cp packages/bookshelf/dist/styles/default.css public/styles/default.css",
+		"copy:bookshelf-css": "mkdir -p public/styles/v1 && cp packages/bookshelf/dist/styles/default.css public/styles/v1/default.css",
 		"preview": "vite preview",
 		"typecheck": "bun run --filter @dawdle.space/bookshelf typecheck && bun run --filter @dawdle.space/bookshelf build && bun run --filter @dawdle.space/bookshelf-api typecheck && tsc --noEmit",
 		"lint": "biome check .",

@@ -1,15 +1,10 @@
 @layer bookshelf {
 	.bs-embed {
-		--bookshelf--font: "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
-		--bookshelf--radius: 0;
-		font-family: var(--bookshelf--font);
+		font-family: inherit;
 		font-weight: normal;
-		color: var(--bookshelf--text);
+		color: var(--bookshelf--text, CanvasText);
 		box-sizing: border-box;
 		padding: 8px;
-	}
-	.bs-embed .bs-shelf-section[data-rounded-corners] {
-		--bookshelf--radius: 10px;
 	}
 	.bs-embed *,
 	.bs-embed *::before,
@@ -18,7 +13,7 @@
 	}
 
 	.bs-embed .bs-rating {
-		color: var(--bookshelf--rating);
+		color: var(--bookshelf--rating, currentColor);
 		letter-spacing: 1px;
 		font-size: 0.85rem;
 		white-space: nowrap;
@@ -55,7 +50,7 @@
 		font-size: 1rem;
 		font-weight: 700;
 		letter-spacing: 0.01em;
-		color: var(--bookshelf--text);
+		color: var(--bookshelf--text, CanvasText);
 		opacity: 0.85;
 	}
 	.bs-embed .bs-attribution {
@@ -63,7 +58,7 @@
 		font-size: 0.68rem;
 		line-height: 1.2;
 		text-align: right;
-		color: var(--bookshelf--muted);
+		color: var(--bookshelf--muted, CanvasText);
 		opacity: 0.48;
 	}
 	.bs-embed .bs-attribution a {
