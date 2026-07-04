@@ -10,7 +10,6 @@ export const config: BookshelfConfig = {
 	theme: "auto",
 	dateFormat: "yyyy-mm-dd",
 	stylesheet: "cdn",
-	showAttribution: true,
 	sections: [
 		{ label: "Reading", filter: { shelf: "reading" } },
 		{ label: "Read", filter: { shelf: "read" } },

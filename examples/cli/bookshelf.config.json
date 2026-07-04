@@ -1,5 +1,5 @@
 {
-	"$schema": "./node_modules/@dawdle.space/bookshelf/schema.json",
+	"$schema": "https://bookshelf.dawdle.space/schema/v0.1.0/schema.json",
 	"dataSource": {
 		"type": "goodreadsrss",
 		"url": "https://www.goodreads.com/review/list_rss/129153443?shelf=read"
@@ -9,7 +9,6 @@
 	"theme": "auto",
 	"dateFormat": "yyyy-mm-dd",
 	"stylesheet": "none",
-	"showAttribution": true,
 	"sections": [
 		{ "label": "Reading", "filter": { "shelf": "reading" } },
 		{ "label": "Read", "filter": { "shelf": "read" } },

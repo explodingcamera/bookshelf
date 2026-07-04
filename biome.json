@@ -26,6 +26,11 @@
 		"lineWidth": 100,
 		"indentStyle": "tab"
 	},
+	"html": {
+		"parser": {
+			"interpolation": true
+		}
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {

@@ -11,6 +11,7 @@ const { values, positionals } = parseArgs({
 	options: {
 		"export-cover": { type: "string" },
 		template: { type: "string" },
+		"template-string": { type: "string" },
 		doc: { type: "boolean", default: false },
 		css: { type: "string" },
 		out: { type: "string" },
@@ -23,7 +24,9 @@ if (values.help || positionals.length === 0) {
 	console.log(`bookshelf <config.json> [options]
 
   --export-cover <d>  download covers into this directory
-  --template <path>   replace <!-- BOOKSHELF-START --><!-- BOOKSHELF-END --> block
+  --template <path>   replace {{ bookshelf }} in an HTML template
+  --template-string <s>
+                    customize the template placeholder
   --doc               emit a full standalone HTML document instead of a fragment
   --css <path>        inline this theme CSS into the document (use with --doc)
   --out <path>        write to file instead of stdout
@@ -33,18 +36,19 @@ if (values.help || positionals.length === 0) {
 
 if (positionals.length > 1) throw new Error("expected exactly one config file");
 if (values.template && values.doc) throw new Error("--template and --doc cannot be used together");
+if (values["template-string"] && !values.template)
+	throw new Error("--template-string can only be used with --template");
 if (values.css && !values.doc) throw new Error("--css can only be used with --doc");
 
-const START = "<!-- BOOKSHELF-START -->";
-const END = "<!-- BOOKSHELF-END -->";
+const DEFAULT_TEMPLATE_STRING = "{{ bookshelf }}";
 
-function renderIntoTemplate(template: string, markup: string): string {
-	const block = `${START}\n${markup}\n${END}`;
-	const existing = new RegExp(
-		`${START.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${END.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-	);
-	if (existing.test(template)) return template.replace(existing, block);
-	throw new Error(`template must contain ${START}${END}`);
+function renderIntoTemplate(template: string, markup: string, templateString: string): string {
+	if (!templateString) throw new Error("--template-string cannot be empty");
+	const first = template.indexOf(templateString);
+	if (first === -1) throw new Error(`template must contain ${templateString}`);
+	const next = template.indexOf(templateString, first + templateString.length);
+	if (next !== -1) throw new Error(`template must contain exactly one ${templateString}`);
+	return template.replace(templateString, markup);
 }
 
 const file = positionals[0];
@@ -69,7 +73,11 @@ const css = values.css
 
 const markup = values.doc ? bookshelf.renderDocument(shelf, { css }) : bookshelf.render(shelf);
 const output = values.template
-	? renderIntoTemplate(readFileSync(values.template, "utf8"), markup)
+	? renderIntoTemplate(
+			readFileSync(values.template, "utf8"),
+			markup,
+			values["template-string"] ?? DEFAULT_TEMPLATE_STRING,
+		)
 	: markup;
 
 if (values.out) writeFileSync(values.out, output);

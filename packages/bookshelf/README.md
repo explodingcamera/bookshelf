@@ -134,9 +134,10 @@ The CLI includes the same cover downloader via `--export-cover`.
 ```bash
 bookshelf bookshelf.config.json --doc --out bookshelf.html
 bookshelf bookshelf.config.json --template page.html --out public/bookshelf.html
+bookshelf bookshelf.config.json --template page.html --template-string '<main id="bookshelf"></main>' --out public/bookshelf.html
 bookshelf bookshelf.config.json --export-cover public/covers --template page.html --out public/bookshelf.html
 ```
 
 Render settings belong in `bookshelf.config.json`; CLI flags only control output files, templates, documents, CSS inlining, and cover downloads.
 
-Templates must contain `<!-- BOOKSHELF-START --><!-- BOOKSHELF-END -->`.
+Templates must contain the template string once. The default is `{{ bookshelf }}`; customize it with `--template-string`.
