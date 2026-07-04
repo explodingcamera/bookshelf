@@ -19,7 +19,7 @@ export const DEFAULT_SOURCE_URL = "https://www.goodreads.com/review/list_rss/129
 export const SETTINGS_KEY = "bookshelf:settings";
 export const THEME_KEY = "bookshelf:theme";
 
-export type Status = { text: string; kind: "info" | "error" } | null;
+export type Status = { text: string; kind: "info" | "error" | "loading" } | null;
 export type UiTheme = "light" | "dark";
 export type MainTab = "preview" | "settings" | "export";
 

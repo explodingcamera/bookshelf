@@ -6,7 +6,6 @@ function hashSeed(value: string): number {
 	return hash;
 }
 
-/** Deterministic int in [min, max] from a seed — drives all "organic" variation. */
 export function hashInt(seed: string, min: number, max: number): number {
 	return min + (hashSeed(seed) % (max - min + 1));
 }

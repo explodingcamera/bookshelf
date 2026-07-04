@@ -119,7 +119,6 @@ const Shelf = ({
 	);
 };
 
-/** `.bs-embed` markup fragment (no CSS). */
 export const renderShelf = (
 	shelf: BookshelfData,
 	config: BookshelfConfig,
@@ -133,7 +132,6 @@ export interface DocumentOptions {
 	baseHref?: string;
 }
 
-/** A full standalone HTML document (iframe srcdoc / hosted page body). */
 export const renderDocument = (
 	shelf: BookshelfData,
 	config: BookshelfConfig,

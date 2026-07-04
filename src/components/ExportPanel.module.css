@@ -1,16 +1,18 @@
 .root {
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 16px;
 }
 .list {
 	display: inline-flex;
+	align-self: flex-start;
+	flex-wrap: wrap;
 	gap: 4px;
 	position: relative;
 }
 .tab {
 	border: 0;
-	background: transparent;
+	background: color-mix(in srgb, var(--ui-bg) 75%, var(--ui-surface-2));
 	padding: 8px 14px;
 	cursor: pointer;
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -19,6 +21,13 @@
 	letter-spacing: 0.01em;
 	color: var(--ui-muted);
 	border-radius: 0;
+	transition:
+		background 0.16s ease,
+		color 0.16s ease;
+}
+.tab:hover {
+	background: color-mix(in srgb, var(--ui-bg) 45%, var(--ui-surface-2));
+	color: var(--ui-text);
 }
 .tab[data-active] {
 	background: var(--ui-surface-2);
@@ -33,15 +42,38 @@
 .panel {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 18px;
 }
-.hint {
+.docs {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 52rem;
+}
+.heading {
 	margin: 0;
-	color: var(--ui-muted);
-	font-size: 0.82rem;
+	font-size: 1rem;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
 }
-.hint a,
-.hint code {
+.lede {
+	margin: 0;
+	color: var(--ui-text);
+	font-size: 0.92rem;
+	line-height: 1.45;
+}
+.docList {
+	margin: 0;
+	padding-left: 1.1rem;
+	color: var(--ui-muted);
+	font-size: 0.84rem;
+	line-height: 1.45;
+}
+.docList li + li {
+	margin-top: 4px;
+}
+.docList a,
+.docList code {
 	color: var(--ui-text);
 }
 .option {
@@ -52,54 +84,94 @@
 	color: var(--ui-text);
 	font-size: 0.82rem;
 }
-.innerRoot {
+.snippetGrid {
+	display: grid;
+	gap: 14px;
+}
+.snippetTabs {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
 }
-.innerList {
+.snippetTabList {
 	display: inline-flex;
+	flex-wrap: wrap;
 	gap: 4px;
+	padding: 8px;
+	border: 1px solid var(--ui-rule-soft);
+	border-bottom: 0;
+	background: color-mix(in srgb, var(--ui-bg) 82%, var(--ui-surface-2));
 }
-.innerTab {
+.snippetTab {
 	border: 0;
-	background: var(--ui-surface-2);
-	padding: 5px 10px;
+	background: color-mix(in srgb, var(--ui-bg) 75%, var(--ui-surface-2));
+	padding: 6px 10px;
 	cursor: pointer;
-	font: inherit;
-	font-size: 0.76rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.01em;
 	color: var(--ui-muted);
+	transition:
+		background 0.16s ease,
+		color 0.16s ease;
 }
-.innerTab[data-active] {
-	background: var(--ui-accent);
-	color: var(--ui-accent-contrast);
+.snippetTab:hover {
+	background: color-mix(in srgb, var(--ui-bg) 45%, var(--ui-surface-2));
+	color: var(--ui-text);
 }
-.empty {
-	color: var(--ui-muted);
+.snippetTab[data-active] {
+	background: var(--ui-surface-2);
+	color: var(--ui-text);
+}
+.snippetTabs .snippet {
+	border-top: 0;
+}
+.snippet {
+	border: 1px solid var(--ui-rule-soft);
+	background: color-mix(in srgb, var(--ui-bg) 82%, var(--ui-surface-2));
+}
+.snippetHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 11px 12px 10px;
+}
+.snippetTitle {
 	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.75rem;
+	font-weight: 800;
+	letter-spacing: 0.01em;
+	color: var(--ui-text);
 }
-
-.codeWrap {
-	position: relative;
+.snippetText {
+	max-width: 42rem;
+	margin: 4px 0 0;
+	color: var(--ui-muted);
+	font-size: 0.8rem;
+	line-height: 1.4;
 }
 .code {
+	display: block;
 	width: 100%;
-	min-height: 260px;
+	max-height: min(360px, 55vh);
 	resize: vertical;
 	padding: 12px;
 	background: var(--ui-surface-2);
 	border: 0;
+	border-top: 1px solid var(--ui-rule-soft);
 	border-radius: 0;
+	color: var(--ui-text);
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 0.78rem;
 	line-height: 1.5;
+	overflow: auto;
 	white-space: pre-wrap;
 	word-break: break-word;
 }
 .copy {
-	position: absolute;
-	top: 8px;
-	right: 8px;
+	flex: none;
 	padding: 4px 10px;
 	font-size: 0.72rem;
 	font-weight: 600;
@@ -108,7 +180,42 @@
 	color: var(--ui-accent-contrast);
 	border-radius: 0;
 	cursor: pointer;
+	transition: opacity 0.16s ease;
 }
 .copy:hover {
-	border-color: var(--ui-accent);
+	opacity: 0.82;
+}
+.empty {
+	color: var(--ui-muted);
+	margin: 0;
+}
+
+@media (max-width: 720px) {
+	.list {
+		width: 100%;
+	}
+
+	.tab {
+		flex: 1 1 calc(50% - 4px);
+		padding-inline: 10px;
+	}
+
+	.snippetTab {
+		flex: 1 1 calc(50% - 4px);
+	}
+
+	.snippetHeader {
+		align-items: stretch;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.copy {
+		align-self: flex-start;
+	}
+
+	.code {
+		max-height: min(320px, 55vh);
+		font-size: 0.74rem;
+	}
 }

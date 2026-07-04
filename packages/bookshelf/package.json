@@ -42,7 +42,7 @@
 	},
 	"scripts": {
 		"build": "tsdown && bun run build:css",
-		"build:css": "lightningcss --bundle --minify --targets \"chrome 100, firefox 100, safari 15\" styles/default.css -d dist/styles && lightningcss --bundle --minify --targets \"chrome 100, firefox 100, safari 15\" styles/base.css -d dist/styles && mkdir -p dist/styles/render/display && cp src/render/display/*.css dist/styles/render/display/",
+		"build:css": "lightningcss --bundle --minify --targets \"chrome 123, firefox 120, safari 17.5\" styles/default.css -d dist/styles && lightningcss --bundle --minify --targets \"chrome 123, firefox 120, safari 17.5\" styles/base.css -d dist/styles && mkdir -p dist/styles/render/display && cp src/render/display/*.css dist/styles/render/display/",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {

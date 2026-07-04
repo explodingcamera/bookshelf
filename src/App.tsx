@@ -114,7 +114,7 @@ export function App() {
 					setShelf(null);
 					setShelfSourceKey(null);
 					setConfig(normalizeSettings(baseConfig, readSavedSettings()));
-					setStatus({ text: `Configured ${source.label}. Loading books...`, kind: "info" });
+					setStatus({ text: `Configured ${source.label}.`, kind: "info" });
 					return null;
 				})
 				.catch((error: unknown) => {
@@ -139,6 +139,7 @@ export function App() {
 
 	useEffect(() => {
 		if (!status) return;
+		if (status.kind === "loading") return;
 		const timeout = window.setTimeout(() => setStatus(null), status.kind === "error" ? 7000 : 4000);
 		return () => window.clearTimeout(timeout);
 	}, [status]);
@@ -151,8 +152,11 @@ export function App() {
 		});
 		if (shelf && shelfSourceKey === sourceKey) return;
 		const controller = new AbortController();
-		setLoading(true);
-		setStatus({ text: "Loading books…", kind: "info" });
+		const loadingTimeout = window.setTimeout(() => {
+			if (controller.signal.aborted) return;
+			setLoading(true);
+			setStatus({ text: "Loading books...", kind: "loading" });
+		}, 180);
 		const bookshelf = new Bookshelf({
 			...config,
 			baseUrl: API_BASE_URL,
@@ -176,9 +180,13 @@ export function App() {
 				});
 			})
 			.finally(() => {
+				window.clearTimeout(loadingTimeout);
 				if (!controller.signal.aborted) setLoading(false);
 			});
-		return () => controller.abort();
+		return () => {
+			window.clearTimeout(loadingTimeout);
+			controller.abort();
+		};
 	}, [config, shelf, shelfSourceKey]);
 
 	useEffect(() => {
