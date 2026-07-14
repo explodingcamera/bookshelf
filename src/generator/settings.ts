@@ -1,16 +1,11 @@
 import type {
 	BookLinkSource,
-	BookSort,
 	BookshelfConfig,
 	BookshelfData,
 	BookshelfDataSource,
-	BookshelfStylesheet,
-	BookshelfTheme,
 	CoverSource,
 	DateFormat,
-	RenderMode,
 	SectionRenderConfig,
-	SpineBehavior,
 } from "@dawdle.space/bookshelf";
 import { DEFAULT_RENDER_OPTIONS, DEFAULT_SHELVES } from "@dawdle.space/bookshelf";
 
@@ -21,8 +16,6 @@ export const THEME_KEY = "bookshelf:theme";
 export type Status = { text: string; kind: "info" | "error" | "loading" } | null;
 export type UiTheme = "light" | "dark";
 export type MainTab = "preview" | "settings" | "export";
-
-type CompleteSection = SectionRenderConfig & typeof DEFAULT_RENDER_OPTIONS;
 
 export function createGeneratorConfig(
 	shelf: BookshelfData,
@@ -60,9 +53,9 @@ export function createGeneratorConfig(
 					{
 						...DEFAULT_RENDER_OPTIONS,
 						label: "Read",
-						mode: "list" as const,
+						mode: "list",
 						filter: { shelf: "read", hasRating: true },
-					},
+					} satisfies SectionRenderConfig,
 				]
 			: []),
 	];
@@ -96,21 +89,6 @@ export const DATE_FORMATS: { id: DateFormat; label: string }[] = [
 	{ id: "mm/dd/yyyy", label: "06/18/2026" },
 ];
 
-const RENDER_MODES: RenderMode[] = ["covers", "spines", "3d", "list"];
-const SORT_OPTIONS: { id: BookSort; label: string }[] = [
-	{ id: "readAt", label: "Date read" },
-	{ id: "readAtAsc", label: "Date read (reversed)" },
-	{ id: "addedAt", label: "Date added" },
-	{ id: "addedAtAsc", label: "Date added (reversed)" },
-	{ id: "rating", label: "My rating" },
-	{ id: "ratingAsc", label: "My rating (reversed)" },
-];
-const STYLESHEETS: BookshelfStylesheet[] = ["cdn", "inline", "none"];
-
-export function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null;
-}
-
 export function readInitialTheme(): UiTheme {
 	try {
 		const saved = localStorage.getItem(THEME_KEY);
@@ -121,119 +99,9 @@ export function readInitialTheme(): UiTheme {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-export function readSavedSettings(): unknown {
-	try {
-		const raw = localStorage.getItem(SETTINGS_KEY);
-		return raw ? JSON.parse(raw) : null;
-	} catch {
-		return null;
-	}
-}
-
-function validCoverSource(value: unknown, fallback: CoverSource): CoverSource {
-	return COVER_OPTIONS.some((option) => option.id === value) ? (value as CoverSource) : fallback;
-}
-
-function validBookLinkSource(value: unknown, fallback: BookLinkSource): BookLinkSource {
-	return LINK_OPTIONS.some((option) => option.id === value) ? (value as BookLinkSource) : fallback;
-}
-
-function validBookshelfTheme(value: unknown, fallback: BookshelfTheme): BookshelfTheme {
-	return value === "auto" || value === "light" || value === "dark" ? value : fallback;
-}
-
-function validDateFormat(value: unknown, fallback: DateFormat): DateFormat {
-	return DATE_FORMATS.some((option) => option.id === value) ? (value as DateFormat) : fallback;
-}
-
-function validStylesheet(value: unknown, fallback: BookshelfStylesheet): BookshelfStylesheet {
-	return STYLESHEETS.includes(value as BookshelfStylesheet)
-		? (value as BookshelfStylesheet)
-		: fallback;
-}
-
-function validRenderMode(value: unknown, fallback: RenderMode): RenderMode {
-	return RENDER_MODES.includes(value as RenderMode) ? (value as RenderMode) : fallback;
-}
-
-function validBookSort(value: unknown, fallback: BookSort): BookSort {
-	return SORT_OPTIONS.some((option) => option.id === value) ? (value as BookSort) : fallback;
-}
-
-function validSpineBehavior(value: unknown, fallback: SpineBehavior): SpineBehavior {
-	return value === "hover" || value === "open" ? value : fallback;
-}
-
-function bool(value: unknown, fallback: boolean): boolean {
-	return typeof value === "boolean" ? value : fallback;
-}
-
-function numberInRange(value: unknown, fallback: number, min: number, max: number): number {
-	return typeof value === "number" && Number.isFinite(value)
-		? Math.min(max, Math.max(min, value))
-		: fallback;
-}
-
-function normalizeDataSource(value: unknown, fallback: BookshelfDataSource): BookshelfDataSource {
-	if (!isRecord(value) || typeof value.type !== "string") return fallback;
-	return {
-		type: value.type,
-		url: typeof value.url === "string" ? value.url : undefined,
-	};
-}
-
-function normalizeSection(value: unknown, fallback: CompleteSection): SectionRenderConfig {
-	if (!isRecord(value)) return fallback;
-	const rawFilter = isRecord(value.filter) ? value.filter : undefined;
-	const filter = rawFilter
-		? {
-				shelf: typeof rawFilter.shelf === "string" ? rawFilter.shelf : fallback.filter?.shelf,
-				hasReview: bool(rawFilter.hasReview, false),
-				hasRating: bool(rawFilter.hasRating, false),
-			}
-		: fallback.filter;
-	return {
-		...fallback,
-		label: typeof value.label === "string" ? value.label : fallback.label,
-		mode: validRenderMode(value.mode, fallback.mode),
-		sortBy: validBookSort(value.sortBy, fallback.sortBy),
-		spineBehavior: validSpineBehavior(value.spineBehavior, fallback.spineBehavior),
-		showRatings: bool(value.showRatings, fallback.showRatings),
-		showReviews: bool(value.showReviews, fallback.showReviews),
-		showAuthor: bool(value.showAuthor, fallback.showAuthor),
-		showReadDate: bool(value.showReadDate, fallback.showReadDate),
-		scale: numberInRange(value.scale, fallback.scale, 0.65, 1.6),
-		filter,
-	};
-}
-
-export function normalizeSettings(
-	base: BookshelfConfig,
-	saved: unknown,
-	preserveDataSource = false,
-): BookshelfConfig {
-	if (!isRecord(saved)) return base;
-	const rawSections = Array.isArray(saved.sections) ? saved.sections : null;
-	const baseSections = base.sections ?? [];
-	const sections = rawSections
-		? rawSections.map((section, index) => {
-				const baseSection = baseSections[index] ?? {
-					label: "",
-				};
-				return normalizeSection(section, { ...DEFAULT_RENDER_OPTIONS, ...baseSection });
-			})
-		: baseSections;
-	return {
-		...base,
-		dataSource: preserveDataSource
-			? normalizeDataSource(saved.dataSource, base.dataSource)
-			: base.dataSource,
-		coverSource: validCoverSource(saved.coverSource, base.coverSource ?? "metadata"),
-		bookLinkSource: validBookLinkSource(saved.bookLinkSource, base.bookLinkSource ?? "provider"),
-		theme: validBookshelfTheme(saved.theme, base.theme ?? "auto"),
-		dateFormat: validDateFormat(saved.dateFormat, base.dateFormat ?? "yyyy-mm-dd"),
-		stylesheet: validStylesheet(saved.stylesheet, base.stylesheet ?? "cdn"),
-		showAttribution: bool(saved.showAttribution, base.showAttribution ?? true),
-		sections,
-	};
+export async function readSavedSettings(): Promise<BookshelfConfig | undefined> {
+	const raw = localStorage.getItem(SETTINGS_KEY);
+	if (!raw) return undefined;
+	const { parseBookshelfConfig } = await import("@dawdle.space/bookshelf/validate");
+	return parseBookshelfConfig(JSON.parse(raw));
 }

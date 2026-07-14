@@ -6,7 +6,7 @@ import type {
 	SectionRenderConfig,
 	ShelfConfig,
 } from "@dawdle.space/bookshelf";
-import { DEFAULT_RENDER_OPTIONS, RENDER_MODES } from "@dawdle.space/bookshelf";
+import { DEFAULT_RENDER_OPTIONS, RENDER_MODES, SORT_OPTIONS } from "@dawdle.space/bookshelf";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 
 interface Props {
@@ -14,15 +14,6 @@ interface Props {
 	sourceShelves: ShelfConfig[];
 	onChange: (sections: SectionRenderConfig[]) => void;
 }
-
-const SORT_OPTIONS: { id: BookSort; label: string }[] = [
-	{ id: "readAt", label: "Date read" },
-	{ id: "readAtAsc", label: "Date read (reversed)" },
-	{ id: "addedAt", label: "Date added" },
-	{ id: "addedAtAsc", label: "Date added (reversed)" },
-	{ id: "rating", label: "My rating" },
-	{ id: "ratingAsc", label: "My rating (reversed)" },
-];
 
 const CUSTOM_SHELF = "__custom__";
 

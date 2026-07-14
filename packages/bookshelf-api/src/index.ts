@@ -3,17 +3,16 @@ import {
 	type BookshelfConfig,
 	type BookshelfData,
 	type BookshelfTheme,
-	DEFAULT_SHELVES,
 	renderDocument,
-	type Shelf,
+	shelvesForConfig,
 } from "@dawdle.space/bookshelf";
 import { decodeBookshelfConfig } from "@dawdle.space/bookshelf/config";
 import { goodreadsRssSource } from "@dawdle.space/bookshelf/importer/goodreads-rss";
+import { parseBookshelfConfig } from "@dawdle.space/bookshelf/validate";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
-const DEFAULT_SHELF_IDS = new Set(DEFAULT_SHELVES.map((shelf) => shelf.id));
 
 interface ShelfCacheEntry {
 	expiresAt: number;
@@ -35,24 +34,6 @@ function stylesheetFromQuery(value: string | undefined): string | undefined {
 	} catch {
 		return undefined;
 	}
-}
-
-function shelvesForConfig(config: BookshelfConfig): readonly Shelf[] {
-	const sections =
-		config.sections ??
-		DEFAULT_SHELVES.map((shelf) => ({
-			label: shelf.label,
-			filter: { shelf: shelf.id },
-		}));
-	const ids = new Set<string>();
-	const shelves: Shelf[] = [];
-	for (const section of sections) {
-		const id = section.filter?.shelf;
-		if (!id || ids.has(id)) continue;
-		ids.add(id);
-		shelves.push(DEFAULT_SHELF_IDS.has(id) ? (id as Shelf) : { custom: id });
-	}
-	return shelves;
 }
 
 async function shelfFromConfig(config: BookshelfConfig) {
@@ -97,7 +78,8 @@ app.get("/bookshelf", async (c) => {
 	const encoded = c.req.query("config");
 	if (!encoded) return c.json({ error: "Missing config parameter" }, 400);
 	try {
-		return c.json(await shelfFromConfig(await decodeBookshelfConfig(encoded)));
+		const config = parseBookshelfConfig(await decodeBookshelfConfig(encoded));
+		return c.json(await shelfFromConfig(config));
 	} catch (error) {
 		return c.json(
 			{ error: error instanceof Error ? error.message : "Could not load bookshelf" },
@@ -110,7 +92,7 @@ app.get("/embed", async (c) => {
 	const encoded = c.req.query("config");
 	if (!encoded) return c.text("Missing config parameter", 400);
 	try {
-		const config = await decodeBookshelfConfig(encoded);
+		const config = parseBookshelfConfig(await decodeBookshelfConfig(encoded));
 		const shelf = await shelfFromConfig(config);
 		const theme = themeFromQuery(c.req.query("theme"));
 		const stylesheet = stylesheetFromQuery(c.req.query("stylesheet"));

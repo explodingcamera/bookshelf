@@ -1,8 +1,8 @@
-import { DEFAULT_SHELVES, encodeBookshelfConfig } from "./config";
+import { encodeBookshelfConfig, shelvesForConfig } from "./config";
 import { importBookshelf } from "./importer";
 import type { DocumentOptions, RendererOptions } from "./render";
 import { renderDocument as renderBookshelfDocument, renderShelf } from "./render";
-import type { BookSource, BookshelfConfig, BookshelfData, Shelf } from "./types";
+import type { BookSource, BookshelfConfig, BookshelfData } from "./types";
 
 export interface BookshelfApiOptions {
 	baseUrl?: string | URL;
@@ -40,26 +40,6 @@ export interface BookshelfRuntimeConfig extends BookshelfApiOptions {
 export type BookshelfOptions = BookshelfRuntimeConfig;
 
 const DEFAULT_API_BASE_URL = "https://bookshelf.dawdle.space";
-const DEFAULT_SHELF_IDS = new Set(DEFAULT_SHELVES.map((shelf) => shelf.id));
-
-function shelvesForConfig(config: BookshelfConfig): readonly Shelf[] {
-	const sections =
-		config.sections ??
-		DEFAULT_SHELVES.map((shelf) => ({
-			id: shelf.id,
-			label: shelf.label,
-			filter: { shelf: shelf.id },
-		}));
-	const ids = new Set<string>();
-	const shelves: Shelf[] = [];
-	for (const section of sections) {
-		const id = section.filter?.shelf;
-		if (!id || ids.has(id)) continue;
-		ids.add(id);
-		shelves.push(DEFAULT_SHELF_IDS.has(id) ? (id as Shelf) : { custom: id });
-	}
-	return shelves;
-}
 
 async function bookshelfApiUrl(
 	path: "bookshelf" | "embed",

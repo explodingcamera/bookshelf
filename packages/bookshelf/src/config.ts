@@ -1,4 +1,12 @@
-import type { BookshelfConfig, RenderMode, RenderOptions, ShelfConfig } from "./types";
+import type {
+	BookSort,
+	BookshelfConfig,
+	DefaultShelf,
+	RenderMode,
+	RenderOptions,
+	Shelf,
+	ShelfConfig,
+} from "./types";
 
 export const DEFAULT_SHELVES: readonly ShelfConfig[] = [
 	{ id: "reading", label: "Reading" },
@@ -14,6 +22,15 @@ export const RENDER_MODES: ReadonlyArray<{ id: RenderMode; label: string }> = [
 	{ id: "list", label: "List" },
 ];
 
+export const SORT_OPTIONS: ReadonlyArray<{ id: BookSort; label: string }> = [
+	{ id: "readAt", label: "Date read" },
+	{ id: "readAtAsc", label: "Date read (reversed)" },
+	{ id: "addedAt", label: "Date added" },
+	{ id: "addedAtAsc", label: "Date added (reversed)" },
+	{ id: "rating", label: "My rating" },
+	{ id: "ratingAsc", label: "My rating (reversed)" },
+];
+
 export const DEFAULT_RENDER_OPTIONS: RenderOptions = {
 	mode: "covers",
 	sortBy: "readAt",
@@ -24,6 +41,23 @@ export const DEFAULT_RENDER_OPTIONS: RenderOptions = {
 	showReadDate: true,
 	scale: 1,
 };
+
+const DEFAULT_SHELF_IDS = new Set<string>(DEFAULT_SHELVES.map((shelf) => shelf.id));
+
+export function shelvesForConfig(config: BookshelfConfig): readonly Shelf[] {
+	const sections =
+		config.sections ??
+		DEFAULT_SHELVES.map((shelf) => ({ label: shelf.label, filter: { shelf: shelf.id } }));
+	const ids = new Set<string>();
+	const shelves: Shelf[] = [];
+	for (const section of sections) {
+		const id = section.filter?.shelf;
+		if (!id || ids.has(id)) continue;
+		ids.add(id);
+		shelves.push(DEFAULT_SHELF_IDS.has(id) ? (id as DefaultShelf) : { custom: id });
+	}
+	return shelves;
+}
 
 function bytesFromBase64Url(value: string): Uint8Array {
 	return Uint8Array.fromBase64(value, { alphabet: "base64url", lastChunkHandling: "loose" });

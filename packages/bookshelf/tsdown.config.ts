@@ -7,6 +7,7 @@ export default defineConfig({
 		"src/importer/goodreads-rss.ts",
 		"src/covers.ts",
 		"src/config.ts",
+		"src/validate.ts",
 	],
 	format: ["esm"],
 	dts: true,

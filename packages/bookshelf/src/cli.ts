@@ -5,7 +5,7 @@ import { parseArgs } from "node:util";
 import { Bookshelf } from "./api";
 import { exportCover } from "./covers";
 import { goodreadsRssSource } from "./importer/goodreads-rss";
-import type { BookshelfConfig } from "./types";
+import { parseBookshelfConfig } from "./validate";
 
 const { values, positionals } = parseArgs({
 	options: {
@@ -54,8 +54,7 @@ function renderIntoTemplate(template: string, markup: string, templateString: st
 const file = positionals[0];
 if (!file) throw new Error("missing input file");
 
-const config = JSON.parse(readFileSync(file, "utf8")) as BookshelfConfig;
-if (!config.dataSource) throw new Error("config JSON must include dataSource");
+const config = parseBookshelfConfig(JSON.parse(readFileSync(file, "utf8")));
 const bookshelf = new Bookshelf({ ...config, sources: [goodreadsRssSource] });
 const shelf = await bookshelf.load();
 if (values["export-cover"]) {

@@ -11,9 +11,9 @@
 	},
 	"dependencies": {
 		"@dawdle.space/bookshelf": "workspace:*",
-		"hono": "^4.12.27"
+		"hono": "^4.12.30"
 	},
 	"devDependencies": {
-		"typescript": "^6.0.3"
+		"typescript": "^7.0.2"
 	}
 }

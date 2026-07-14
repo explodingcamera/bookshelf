@@ -1,21 +1,19 @@
 import styles from "./App.module.css";
 
-import type { BookSource, BookshelfConfig, BookshelfData } from "@dawdle.space/bookshelf";
-import { Bookshelf, DEFAULT_SHELVES } from "@dawdle.space/bookshelf";
+import type { BookshelfConfig, BookshelfData } from "@dawdle.space/bookshelf";
+import { Bookshelf, DEFAULT_SHELVES, resolveSource } from "@dawdle.space/bookshelf";
 import { goodreadsRssSource } from "@dawdle.space/bookshelf/importer/goodreads-rss";
 import { useCallback, useEffect, useState } from "react";
 
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
-import { SourceCard } from "./components/SourceCard";
 import { Toast } from "./components/Toast";
 import { GeneratorTabs } from "./components/tabs/GeneratorTabs";
+import { UrlInput } from "./components/UrlInput";
 import {
 	createGeneratorConfig,
 	DEFAULT_SOURCE_URL,
-	isRecord,
 	type MainTab,
-	normalizeSettings,
 	readInitialTheme,
 	readSavedSettings,
 	SETTINGS_KEY,
@@ -28,17 +26,6 @@ const API_BASE_URL =
 	import.meta.env.VITE_BOOKSHELF_API_URL ||
 	(import.meta.env.DEV ? window.location.origin : "https://bookshelf.dawdle.space");
 const SOURCES = [goodreadsRssSource];
-
-function resolveSource(
-	input: string,
-	sources: readonly BookSource[],
-): { source: BookSource; url: string } {
-	for (const source of sources) {
-		const url = source.sourceUrl(input);
-		if (url) return { source, url };
-	}
-	throw new Error(`No supported source found for: ${input}`);
-}
 
 export function App() {
 	const [sourceInput, setSourceInput] = useState(DEFAULT_SOURCE_URL);
@@ -54,21 +41,18 @@ export function App() {
 		setConfig((cur) => (cur ? updater(cur) : cur));
 	}, []);
 
-	const loadJson = useCallback((target: string): boolean => {
+	const loadJson = useCallback(async (target: string): Promise<boolean> => {
 		const trimmed = target.trim();
 		if (!trimmed.startsWith("{")) return false;
 
-		const data = JSON.parse(trimmed) as unknown;
-		const record = isRecord(data) ? data : null;
-		const maybeBookshelf = record?.bookshelf ?? data;
+		const { parseBookshelfInput } = await import("@dawdle.space/bookshelf/validate");
+		const input = parseBookshelfInput(JSON.parse(trimmed));
 
-		if (isRecord(maybeBookshelf) && Array.isArray(maybeBookshelf.books)) {
-			const nextShelf = maybeBookshelf as unknown as BookshelfData;
-			const exportConfig = isRecord(record?.config) ? record.config : null;
-			const baseConfig = createGeneratorConfig(nextShelf);
+		if ("bookshelf" in input) {
+			const nextShelf = input.bookshelf;
 			setShelf(nextShelf);
 			setShelfSourceKey("static");
-			setConfig(exportConfig ? normalizeSettings(baseConfig, exportConfig, true) : baseConfig);
+			setConfig(input.config ?? createGeneratorConfig(nextShelf));
 			setStatus({
 				text: `Loaded ${nextShelf.books.length} book${nextShelf.books.length === 1 ? "" : "s"} from JSON.`,
 				kind: "info",
@@ -76,30 +60,30 @@ export function App() {
 			return true;
 		}
 
-		if (isRecord(data) && isRecord(data.dataSource)) {
-			const emptyShelf: BookshelfData = {
-				owner: "Bookshelf",
-				sourceId: String(data.dataSource.type ?? "static"),
-				books: [],
-				shelves: [...DEFAULT_SHELVES],
-			};
+		if ("dataSource" in input) {
 			setShelf(null);
 			setShelfSourceKey(null);
-			setConfig(normalizeSettings(createGeneratorConfig(emptyShelf), data, true));
+			setConfig(input);
 			setStatus({ text: "Loaded bookshelf config.", kind: "info" });
 			return true;
 		}
 
-		setStatus({ text: "JSON must be a bookshelf export or bookshelf JSON.", kind: "error" });
+		setShelf(input);
+		setShelfSourceKey("static");
+		setConfig(createGeneratorConfig(input));
+		setStatus({
+			text: `Loaded ${input.books.length} book${input.books.length === 1 ? "" : "s"} from JSON.`,
+			kind: "info",
+		});
 		return true;
 	}, []);
 
 	const loadSource = useCallback(
 		(target: string, options: { silentInvalid?: boolean } = {}) => {
 			void Promise.resolve()
-				.then(() => {
+				.then(async () => {
 					if (!target.trim()) return null;
-					if (loadJson(target)) return null;
+					if (await loadJson(target)) return null;
 
 					const { source, url } = resolveSource(target, SOURCES);
 					const emptyShelf: BookshelfData = {
@@ -108,12 +92,13 @@ export function App() {
 						books: [],
 						shelves: [...DEFAULT_SHELVES],
 					};
-					const baseConfig: BookshelfConfig = {
-						...createGeneratorConfig(emptyShelf, { type: source.id, url }),
-					};
+					const saved = await readSavedSettings();
+					const nextConfig = saved
+						? { ...saved, dataSource: { type: source.id, url } }
+						: createGeneratorConfig(emptyShelf, { type: source.id, url });
 					setShelf(null);
 					setShelfSourceKey(null);
-					setConfig(normalizeSettings(baseConfig, readSavedSettings()));
+					setConfig(nextConfig);
 					setStatus({ text: `Configured ${source.label}.`, kind: "info" });
 					return null;
 				})
@@ -214,7 +199,7 @@ export function App() {
 				onToggleTheme={() => setTheme((cur) => (cur === "dark" ? "light" : "dark"))}
 			/>
 			<main className={styles.main}>
-				<SourceCard
+				<UrlInput
 					value={sourceInput}
 					onValueChange={setSourceInput}
 					onLoad={loadSource}

@@ -1,60 +1,91 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "https://bookshelf.dawdle.space/schema/v0.1.0/schema.json",
-	"title": "Bookshelf Config",
 	"type": "object",
-	"additionalProperties": false,
-	"required": ["dataSource"],
 	"properties": {
-		"$schema": { "type": "string" },
 		"dataSource": {
 			"type": "object",
-			"additionalProperties": false,
-			"required": ["type"],
 			"properties": {
-				"type": { "type": "string", "enum": ["static", "goodreadsrss", "hardcover"] },
-				"url": { "type": "string" }
-			}
+				"type": {
+					"type": "string"
+				},
+				"url": {
+					"type": "string"
+				}
+			},
+			"required": ["type"]
 		},
-		"coverSource": { "type": "string", "enum": ["openlibrary", "metadata", "none"] },
-		"bookLinkSource": { "type": "string", "enum": ["none", "provider", "openlibrary"] },
-		"theme": { "type": "string", "enum": ["auto", "light", "dark"] },
-		"dateFormat": { "type": "string", "enum": ["yyyy-mm-dd", "dd.mm.yyyy", "mm/dd/yyyy"] },
-		"stylesheet": { "type": "string", "enum": ["cdn", "inline", "none"], "default": "cdn" },
-		"showAttribution": { "type": "boolean", "default": true },
+		"bookLinkSource": {
+			"enum": ["none", "openlibrary", "provider"]
+		},
+		"coverSource": {
+			"enum": ["metadata", "none", "openlibrary"]
+		},
+		"dateFormat": {
+			"enum": ["dd.mm.yyyy", "mm/dd/yyyy", "yyyy-mm-dd"]
+		},
 		"sections": {
 			"type": "array",
-			"items": { "$ref": "#/$defs/section" }
-		}
-	},
-	"$defs": {
-		"section": {
-			"type": "object",
-			"additionalProperties": false,
-			"required": ["label"],
-			"properties": {
-				"label": { "type": "string" },
-				"filter": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"shelf": { "type": "string" },
-						"hasReview": { "type": "boolean" },
-						"hasRating": { "type": "boolean" }
+			"items": {
+				"type": "object",
+				"properties": {
+					"label": {
+						"type": "string"
+					},
+					"filter": {
+						"type": "object",
+						"properties": {
+							"hasRating": {
+								"type": "boolean"
+							},
+							"hasReview": {
+								"type": "boolean"
+							},
+							"shelf": {
+								"type": "string"
+							}
+						}
+					},
+					"mode": {
+						"enum": ["3d", "covers", "list", "spines"]
+					},
+					"scale": {
+						"type": "number",
+						"maximum": 1.6,
+						"minimum": 0.65
+					},
+					"showAuthor": {
+						"type": "boolean"
+					},
+					"showRatings": {
+						"type": "boolean"
+					},
+					"showReadDate": {
+						"type": "boolean"
+					},
+					"showReviews": {
+						"type": "boolean"
+					},
+					"sortBy": {
+						"enum": ["addedAt", "addedAtAsc", "rating", "ratingAsc", "readAt", "readAtAsc"]
+					},
+					"spineBehavior": {
+						"enum": ["hover", "open"]
 					}
 				},
-				"mode": { "type": "string", "enum": ["covers", "spines", "3d", "list"] },
-				"sortBy": {
-					"type": "string",
-					"enum": ["readAt", "readAtAsc", "addedAt", "addedAtAsc", "rating", "ratingAsc"]
-				},
-				"spineBehavior": { "type": "string", "enum": ["hover", "open"] },
-				"showRatings": { "type": "boolean" },
-				"showReviews": { "type": "boolean" },
-				"showAuthor": { "type": "boolean" },
-				"showReadDate": { "type": "boolean" },
-				"scale": { "type": "number", "minimum": 0.65, "maximum": 1.6 }
+				"required": ["label"]
 			}
+		},
+		"showAttribution": {
+			"type": "boolean"
+		},
+		"stylesheet": {
+			"enum": ["cdn", "inline", "none"]
+		},
+		"theme": {
+			"enum": ["auto", "dark", "light"]
 		}
-	}
+	},
+	"required": ["dataSource"],
+	"$id": "https://bookshelf.dawdle.space/schema/v0.1.0/schema.json",
+	"title": "Bookshelf Config"
 }
